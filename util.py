@@ -3,5 +3,5 @@ class util:
 	def _init_(self):
 		# TBD
 	def sendRequest:
-		# make the request to the server 
+		# routines to send POST requests over HTTPS.
 		
