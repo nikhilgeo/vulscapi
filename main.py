@@ -1,5 +1,6 @@
 from defusedxml.ElementTree import parse
 import nex 
+from util import PrintUtil
 
 #read access request from XML
 def readAccessReq():
@@ -17,8 +18,8 @@ def readScanner(scannerName):
 	root = tree.getroot()
 	scanner = root.find(scannerName)
 	#print(scanner)
-	print(scanner.find('host').text)
-	print(scanner.find('username').text)
+	print("Nexpose Host@:"+scanner.find('host').text)
+	#print(scanner.find('username').text)
 	usr_passwd = input("Please enter your password for Nexpose: ")
 	user_cred = {'uname':scanner.find('username').text,'passwd':usr_passwd,'host':scanner.find('host').text}
 	return user_cred
