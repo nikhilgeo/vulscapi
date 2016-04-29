@@ -37,11 +37,17 @@ class Nexpose:
 	def makeRequest(self):
 		headers = {'Content-Type': 'text/xml'}	
 		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=self.loginReqXML,headers=headers,verify=False)
-		#print(response.text)
+		print(response.text)
 		return(response.content)
 		
 	def siteManagement():
 		print("TestModule")
+	def addUser():
+		print("TestModule")
+	def handleAccessReq():
+		print("TestMofule")
+		#TBD
+		
 	
 	# API v1.1 SiteConfig- Provide the configuration of the site, including its associated assets.
 	# API v1.1 SiteSave- Save changes to a new or existing site.

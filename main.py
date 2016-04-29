@@ -32,9 +32,15 @@ def readScanner(scannerName):
 	return user_cred
 
 
+#Reading the Access Request
 access_details = readAccessReq()
+#******NEXPOSE******
+#Read Nexpose Scanner Info, from config file
 scanner_info = readScanner('nexpose')
+#Initilize the Nexpose connection
 nexposeObj = nex.Nexpose(scanner_info)
+#SaveSite and Add User
+#TBD
 
 
 
