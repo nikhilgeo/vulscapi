@@ -18,9 +18,9 @@ class Nexpose:
 			xmlTree = ElementTree(xmlReq)
 			f=BytesIO()
 			xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
-			self.loginReqXML=f.getvalue().decode("utf-8")# converts bytes to string
+			loginReqXML=f.getvalue().decode("utf-8")# converts bytes to string
 			#print(self.loginReqXML)
-			responseXML=self.makeRequest()
+			responseXML=self.makeRequest(loginReqXML)
 			tree = ElementTree(fromstring(responseXML))
 			root = tree.getroot()
 			loginResponse = root.get('success')
@@ -34,18 +34,33 @@ class Nexpose:
 				PrintUtil.printError("Login Failure: "+msg)
 		except Exception as e:
 			PrintUtil.printException(str(e))
-	def makeRequest(self):
+	def makeRequest(self,requestXML):
 		headers = {'Content-Type': 'text/xml'}	
-		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=self.loginReqXML,headers=headers,verify=False)
+		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=requestXML,headers=headers,verify=False)
 		print(response.text)
 		return(response.content)
 		
-	def siteManagement():
-		print("TestModule")
+	def addSite(self,access_req):
+		print("TestModule:SiteManagement")
+		siteSaveRequest = Element('SiteSaveRequest',attrib={'session-id':self.session_id})
+		site_elem = SubElement(siteSaveRequest,'site',attrib={'name':access_req['site_name'],'description':access_req['site_desc']})
+		host_elem = SubElement(site_elem,'Hosts')
+		for ip in access_req['ip'].split(','):
+			range_elem = SubElement(host_elem,'range',attrib={'from':ip,'to':''})
+		xmlTree = ElementTree(siteSaveRequest)
+		f=BytesIO()
+		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
+		saveSiteReqXML=f.getvalue().decode("utf-8")# converts bytes to string
+		print(saveSiteReqXML)
+		responseXML=self.makeRequest(saveSiteReqXML)
+		
+
+				
 	def addUser():
 		print("TestModule")
-	def handleAccessReq():
+	def handleAccessReq(self,access_req):
 		print("TestMofule")
+		self.addSite(access_req)
 		#TBD
 		
 	

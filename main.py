@@ -19,9 +19,10 @@ def readAccessReq():
 	for ipchild in asst_det.findall('ip'):
 		ip = ip+","+ipchild.text
 		#print(ip)
+	ip = ip.strip(',')
 	access_req ={'name':name,'email':email,'ip':ip,'site_name':site_name,'site_desc':site_desc}
 	print(access_req)
-
+	return access_req
 #read the scanner details
 def readScanner(scannerName):
 	tree = parse('scanner_details.xml')
@@ -42,6 +43,7 @@ access_details = readAccessReq()
 scanner_info = readScanner('nexpose')
 #Initilize the Nexpose connection
 nexposeObj = nex.Nexpose(scanner_info)
+nexposeObj.handleAccessReq(access_details)
 #SaveSite and Add User
 #TBD
 
