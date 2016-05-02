@@ -13,10 +13,13 @@ def readAccessReq():
 		email = child.find('email').text
 		#print(email)
 	asst_det = root.find('asset_details')
+	site_det = root.find('site')
+	site_name = site_det.get('name')
+	site_desc = site_det.get('desc')
 	for ipchild in asst_det.findall('ip'):
 		ip = ip+","+ipchild.text
 		#print(ip)
-	access_req ={'name':name,'email':email,'ip':ip}
+	access_req ={'name':name,'email':email,'ip':ip,'site_name':site_name,'site_desc':site_desc}
 	print(access_req)
 
 #read the scanner details
