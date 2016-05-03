@@ -43,10 +43,12 @@ class Nexpose:
 	def addSite(self,access_req):
 		print("TestModule:SiteManagement")
 		siteSaveRequest = Element('SiteSaveRequest',attrib={'session-id':self.session_id})
-		site_elem = SubElement(siteSaveRequest,'site',attrib={'name':access_req['site_name'],'description':access_req['site_desc']})
+		print(access_req['site_name'])
+		site_elem = SubElement(siteSaveRequest,'site',attrib={'name':access_req['site_name']})
 		host_elem = SubElement(site_elem,'Hosts')
 		for ip in access_req['ip'].split(','):
 			range_elem = SubElement(host_elem,'range',attrib={'from':ip,'to':''})
+		scanConfig_elem = SubElement(site_elem, 'ScanConfig' ,attrib={'name':'Full audit', 'templateID':'full-audit'})
 		xmlTree = ElementTree(siteSaveRequest)
 		f=BytesIO()
 		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
