@@ -37,14 +37,14 @@ class Nexpose:
 	def makeRequest(self,requestXML):
 		headers = {'Content-Type': 'text/xml'}	
 		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=requestXML,headers=headers,verify=False)
-		print(response.text)
+		#print(response.text)
 		return(response.content)
 		
 	def addSite(self,access_req):
-		print("TestModule:SiteManagement")
+		#print("TestModule:SiteManagement")
 		siteSaveRequest = Element('SiteSaveRequest',attrib={'session-id':self.session_id})
-		print(access_req['site_name'])
-		site_elem = SubElement(siteSaveRequest,'site',attrib={'name':access_req['site_name']})
+		#print(access_req['site_name'])
+		site_elem = SubElement(siteSaveRequest,'Site',attrib={'name':access_req['site_name'],'id':'-1'})
 		host_elem = SubElement(site_elem,'Hosts')
 		for ip in access_req['ip'].split(','):
 			range_elem = SubElement(host_elem,'range',attrib={'from':ip,'to':''})
@@ -53,15 +53,25 @@ class Nexpose:
 		f=BytesIO()
 		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
 		saveSiteReqXML=f.getvalue().decode("utf-8")# converts bytes to string
-		print(saveSiteReqXML)
+		#print(saveSiteReqXML)
 		responseXML=self.makeRequest(saveSiteReqXML)
-		
+		tree = ElementTree(fromstring(responseXML))
+		root = tree.getroot()
+		loginResponse = root.get('success')
+		if(loginResponse=="1"):
+			site_id = root.get('site-id')
+			PrintUtil.printSuccess("Created site with site-id"+site_id)
+		else:
+			fa=root.find('Failure')
+			ex=fa.find('Exception')
+			msg=ex.find('message').text
+			PrintUtil.printError("Site creation failed: "+msg)	
 
 				
 	def addUser():
 		print("TestModule")
 	def handleAccessReq(self,access_req):
-		print("TestMofule")
+		#print("TestMofule")
 		self.addSite(access_req)
 		#TBD
 		
