@@ -5,13 +5,14 @@ from util import PrintUtil
 #read access request from XML
 def readAccessReq():
 	ip=""
+	usrlst=[]
 	tree = parse('access_request.xml')
 	root = tree.getroot()
 	for child in root.findall('user'):
+		uname = child.find('uname').text
 		name = child.find('name').text
-		#print(name)
 		email = child.find('email').text
-		#print(email)
+		usrlst.append(uname+','+name+','+email)
 	asst_det = root.find('asset_details')
 	site_det = root.find('site')
 	site_name = site_det.get('name')
@@ -20,7 +21,7 @@ def readAccessReq():
 		ip = ip+","+ipchild.text
 		#print(ip)
 	ip = ip.strip(',')
-	access_req ={'name':name,'email':email,'ip':ip,'site_name':site_name,'site_desc':site_desc}
+	access_req ={'userList':usrlst,'ip':ip,'site_name':site_name,'site_desc':site_desc}
 	print(access_req)
 	return access_req
 #read the scanner details
@@ -38,6 +39,7 @@ def readScanner(scannerName):
 
 #Reading the Access Request
 access_details = readAccessReq()
+
 #******NEXPOSE******
 #Read Nexpose Scanner Info, from config file
 scanner_info = readScanner('nexpose')
