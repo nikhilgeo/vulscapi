@@ -57,10 +57,10 @@ class Nexpose:
 		responseXML=self.makeRequest(saveSiteReqXML)
 		tree = ElementTree(fromstring(responseXML))
 		root = tree.getroot()
-		loginResponse = root.get('success')
-		if(loginResponse=="1"):
-			site_id = root.get('site-id')
-			PrintUtil.printSuccess("Created site with site-id"+site_id)
+		addSiteResponse = root.get('success')
+		if(addSiteResponse=="1"):
+			self.site_id = root.get('site-id')
+			PrintUtil.printSuccess("Created site with site-id: "+self.site_id)
 		else:
 			fa=root.find('Failure')
 			ex=fa.find('Exception')
@@ -70,6 +70,11 @@ class Nexpose:
 				
 	def addUser():
 		print("TestModule")
+		usrSaveRequest = Element('UserSaveRequest',attrib={'session-id':self.session_id})
+		usrConfig_elem = SubElement(usrSaveRequest,'UserConfig',attrib={'id':'-1','role-name':'siteadmin','authsrcid':'-1','enabled':'1',})
+		site__elem = SubElement(usrConfig_elm,'Site',attrib={'id':self.site_id})
+		
+		
 	def handleAccessReq(self,access_req):
 		#print("TestMofule")
 		self.addSite(access_req)
