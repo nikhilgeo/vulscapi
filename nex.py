@@ -34,16 +34,18 @@ class Nexpose:
 				PrintUtil.printError("Login Failure: "+msg)
 		except Exception as e:
 			PrintUtil.printException(str(e))
+	
 	def makeRequest(self,requestXML):
 		headers = {'Content-Type': 'text/xml'}	
 		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=requestXML,headers=headers,verify=False)
 		#print(response.text)
 		return(response.content)
-		
+				
 	def addSite(self,access_req):
 		#print("TestModule:SiteManagement")
 		siteSaveRequest = Element('SiteSaveRequest',attrib={'session-id':self.session_id})
 		#print(access_req['site_name'])
+		#Site element have 'S' in caps !!--lost a day on this !!
 		site_elem = SubElement(siteSaveRequest,'Site',attrib={'name':access_req['site_name'],'id':'-1'})
 		host_elem = SubElement(site_elem,'Hosts')
 		for ip in access_req['ip'].split(','):
@@ -68,17 +70,44 @@ class Nexpose:
 			PrintUtil.printError("Site creation failed: "+msg)	
 
 				
-	def addUser():
-		print("TestModule")
+	def addUser(self,access_req):
+		#print("addUser Module")
 		usrSaveRequest = Element('UserSaveRequest',attrib={'session-id':self.session_id})
-		usrConfig_elem = SubElement(usrSaveRequest,'UserConfig',attrib={'id':'-1','role-name':'siteadmin','authsrcid':'-1','enabled':'1',})
-		site__elem = SubElement(usrConfig_elm,'Site',attrib={'id':self.site_id})
+		usrLst = access_req['userList']
+		for user in usrLst:
+			#uname,name,email
+			userinfo = user.split(',')
+			pswd = userinfo[0]+'!vul5c4p1'
+			usrConfig_elem = SubElement(usrSaveRequest,'UserConfig',attrib={'id':'-1','role-name':'user','authsrcid':'-1','enabled':'1','name':userinfo[0],'fullname':userinfo[1],'email':userinfo[2],'password':pswd})
+		sites_elem = SubElement(usrConfig_elem,'UserSite')
+		site_elem = SubElement(sites_elem,'site',attrib={'id':self.site_id})
+		site_elem.text = access_req['site_name']
+		
+		xmlTree = ElementTree(usrSaveRequest)
+		f=BytesIO()
+		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
+		usrSaveReqXML=f.getvalue().decode("utf-8")# converts bytes to string
+		#print(usrSaveReqXML)
+		responseXML=self.makeRequest(usrSaveReqXML)
+		#print(responseXML)
+		tree = ElementTree(fromstring(responseXML))
+		root = tree.getroot()
+		addUserReq = root.get('success')
+		if(addUserReq=="1"):
+			PrintUtil.printSuccess("Created user: ")
+		else:
+			fa=root.find('Failure')
+			ex=fa.find('Exception')
+			msg=ex.find('message').text
+			PrintUtil.printError("User creation failed: "+msg)	
+
+	
 		
 		
 	def handleAccessReq(self,access_req):
 		#print("TestMofule")
 		self.addSite(access_req)
-		#TBD
+		self.addUser(access_req)
 		
 	
 	# API v1.1 SiteConfig- Provide the configuration of the site, including its associated assets.
