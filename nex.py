@@ -26,7 +26,7 @@ class Nexpose:
 			loginResponse = root.get('success')
 			if(loginResponse=="1"):
 				self.session_id = root.get('session-id')
-				PrintUtil.printSuccess("Authenticated to Nexpose Scanner")
+				PrintUtil.printSuccess("Logged in to Nexpose Scanner")
 			else:
 				fa=root.find('Failure')
 				ex=fa.find('Exception')
@@ -38,7 +38,7 @@ class Nexpose:
 	def makeRequest(self,requestXML):
 		headers = {'Content-Type': 'text/xml'}	
 		response=requests.post(self.nexpose_host+"/api/1.1/xml",data=requestXML,headers=headers,verify=False)
-		#print(response.text)
+		print(response.text)
 		return(response.content)
 				
 	def addSite(self,access_req):
@@ -106,7 +106,27 @@ class Nexpose:
 		#print("TestMofule")
 		self.addSite(access_req)
 		self.addUser(access_req)
-		
+	def __del__(self):
+		print("Executing del")	
+		xmlReq = Element('LogoutRequest',attrib={'session-id':self.session_id})
+		xmlTree = ElementTree(xmlReq)
+		f=BytesIO()
+		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
+		logoutReqXML=f.getvalue().decode("utf-8")# converts bytes to string
+		print(logoutReqXML)
+		responseXML=self.makeRequest(logoutReqXML)
+		tree = ElementTree(fromstring(responseXML))
+		root = tree.getroot()
+		logoutResponse = root.get('success')
+		if(logoutResponse=="1"):
+			self.session_id = root.get('session-id')
+			PrintUtil.printSuccess("Logged out of Nexpose Scanner")
+		else:
+			fa=root.find('Failure')
+			ex=fa.find('Exception')
+			msg=ex.find('message').text
+			PrintUtil.printError("Login Failure: "+msg)
+			
 	
 	# API v1.1 SiteConfig- Provide the configuration of the site, including its associated assets.
 	# API v1.1 SiteSave- Save changes to a new or existing site.
