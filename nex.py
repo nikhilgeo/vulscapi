@@ -72,34 +72,32 @@ class Nexpose:
 				
 	def addUser(self,access_req):
 		#print("addUser Module")
-		usrSaveRequest = Element('UserSaveRequest',attrib={'session-id':self.session_id})
 		usrLst = access_req['userList']
 		for user in usrLst:
-			#uname,name,email
-			userinfo = user.split(',')
+			usrSaveRequest = Element('UserSaveRequest',attrib={'session-id':self.session_id})
+			userinfo = user.split(',')#uname,name,email
 			pswd = userinfo[0]+'!vul5c4p1'
 			usrConfig_elem = SubElement(usrSaveRequest,'UserConfig',attrib={'id':'-1','role-name':'user','authsrcid':'-1','enabled':'1','name':userinfo[0],'fullname':userinfo[1],'email':userinfo[2],'password':pswd})
-		sites_elem = SubElement(usrConfig_elem,'UserSite')
-		site_elem = SubElement(sites_elem,'site',attrib={'id':self.site_id})
-		site_elem.text = access_req['site_name']
-		
-		xmlTree = ElementTree(usrSaveRequest)
-		f=BytesIO()
-		xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
-		usrSaveReqXML=f.getvalue().decode("utf-8")# converts bytes to string
-		#print(usrSaveReqXML)
-		responseXML=self.makeRequest(usrSaveReqXML)
-		#print(responseXML)
-		tree = ElementTree(fromstring(responseXML))
-		root = tree.getroot()
-		addUserReq = root.get('success')
-		if(addUserReq=="1"):
-			PrintUtil.printSuccess("Created user: ")
-		else:
-			fa=root.find('Failure')
-			ex=fa.find('Exception')
-			msg=ex.find('message').text
-			PrintUtil.printError("User creation failed: "+msg)	
+			sites_elem = SubElement(usrConfig_elem,'UserSite')
+			site_elem = SubElement(sites_elem,'site',attrib={'id':self.site_id})
+			site_elem.text = access_req['site_name']
+			xmlTree = ElementTree(usrSaveRequest)
+			f=BytesIO()
+			xmlTree.write(f,encoding='utf-8',xml_declaration=True)# required so that xml declarations will come up in generated XML
+			usrSaveReqXML=f.getvalue().decode("utf-8")# converts bytes to string
+			#print(usrSaveReqXML)
+			responseXML=self.makeRequest(usrSaveReqXML)
+			#print(responseXML)
+			tree = ElementTree(fromstring(responseXML))
+			root = tree.getroot()
+			addUserReq = root.get('success')
+			if(addUserReq=="1"):
+				PrintUtil.printSuccess("Created user: "+userinfo[0])
+			else:
+				fa=root.find('Failure')
+				ex=fa.find('Exception')
+				msg=ex.find('message').text
+				PrintUtil.printError("User creation failed: "+msg)	
 
 	
 		
