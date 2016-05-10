@@ -40,12 +40,15 @@ class Nexpose:
         except Exception as e:
             PrintUtil.printException(str(e))
 
+
+    #Make APIv1.1 POST requests
     def makeRequest(self, requestXML):
         headers = {'Content-Type': 'text/xml'}
         response = requests.post(self.nexpose_host + "/api/1.1/xml", data=requestXML, headers=headers, verify=False)
-        print(response.text)
+        #print(response.text)
         return (response.content)
 
+    # API v1.1 SiteSave- Save changes to a new or existing site.
     def addSite(self, access_req):
         # print("TestModule:SiteManagement")
         siteSaveRequest = Element('SiteSaveRequest', attrib={'session-id': self.session_id})
@@ -69,12 +72,15 @@ class Nexpose:
         if (addSiteResponse == "1"):
             self.site_id = root.get('site-id')
             PrintUtil.printSuccess("Created site with site-id: " + self.site_id)
+            return True
         else:
             fa = root.find('Failure')
             ex = fa.find('Exception')
             msg = ex.find('message').text
             PrintUtil.printError("Site creation failed: " + msg)
+            return False
 
+    # API v1.1 UserSave- Create a new user account, or update the settings for an existing account.
     def addUser(self, access_req):
         # print("addUser Module")
         usrLst = access_req['userList']
@@ -102,27 +108,32 @@ class Nexpose:
             addUserReq = root.get('success')
             if (addUserReq == "1"):
                 PrintUtil.printSuccess("Created user: " + userinfo[0])
+                return True
             else:
                 fa = root.find('Failure')
                 ex = fa.find('Exception')
                 msg = ex.find('message').text
                 PrintUtil.printError("User creation failed: " + msg)
+                return False
 
     def handleAccessReq(self, access_req):
         # print("TestMofule")
-        self.addSite(access_req)
-        self.addUser(access_req)
+        addSiteStatus = self.addSite(access_req)
+        if(addSiteStatus):
+            self.addUser(access_req)
+        else:
+            PrintUtil.printError("Site creation failed, aborting user creation..")
         self.logoutOperation()
 
+    # API v1.1 Logout and close the session
     def logoutOperation(self):
-        print("Executing del")
         xmlReq = Element('LogoutRequest', attrib={'session-id': self.session_id})
         xmlTree = ElementTree(xmlReq)
         f = BytesIO()
         xmlTree.write(f, encoding='utf-8',
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         logoutReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
-        print(logoutReqXML)
+        #print(logoutReqXML)
         responseXML = self.makeRequest(logoutReqXML)
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
@@ -136,10 +147,3 @@ class Nexpose:
             msg = ex.find('message').text
             PrintUtil.printError("Logout Failure: " + msg)
 
-
-            # API v1.1 SiteConfig- Provide the configuration of the site, including its associated assets.
-            # API v1.1 SiteSave- Save changes to a new or existing site.
-            # def userManagement():
-            # API v1.1 UserSave- Create a new user account, or update the settings for an existing account.
-            # def _del_(self):
-            # API v1.1 Logout and close the session
