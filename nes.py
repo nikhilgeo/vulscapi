@@ -17,6 +17,9 @@ class Nessus:
         if method == "POST":
             response = requests.post(url, data=payload, headers=headers, verify=False)
             self.status_code = response.status_code
+        if method == "DELETE":
+            response = requests.delete(url, headers=headers, verify=False)
+            self.status_code = response.status_code
             # print(response.text)
         return response.content
 
@@ -33,7 +36,7 @@ class Nessus:
             if self.status_code == 200:
                 self.session_token = json_rep['token']
                 self.headers.update({'X-Cookie': 'token='+self.session_token}) # session token added to HTTP header
-                print(self.headers)
+                #print(self.headers)
                 PrintUtil.printSuccess("Logged in to Nessus Scanner")
             if self.status_code == 400:
                 PrintUtil.printError("Login Failure: username format is not valid")
@@ -69,9 +72,21 @@ class Nessus:
         except Exception as e:
             PrintUtil.printException(str(e))
 
+    def logout_user(self):
+        try:
+            #destroy the user session
+            logoutURL = self.nessus_host + "/session"
+            response = self.makeRequest(logoutURL, {}, self.headers,"DELETE")
+            if self.status_code == 200:
+                PrintUtil.printSuccess("Logged out of Nessus Scanner")
+            if self.status_code == 401:
+                PrintUtil.printSuccess("Logged out failure: No session exists")
+        except Exception as e:
+            PrintUtil.printException(str(e))
+
     def handleAccessReq(self, access_req):
         try:
             create_user_status = self.create_user(access_req)
-            #self.logoutOperation()
+            self.logout_user()
         except Exception as e:
             PrintUtil.printException(str(e))
