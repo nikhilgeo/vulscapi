@@ -24,11 +24,7 @@ class PrintUtil:
         # Make APIv1.1 POST requests
 
 
-def makeRequest(url, payload, payloadtype, method="POST"):
-    if payloadtype == "xml":
-        headers = {'Content-Type': 'text/xml'}
-    if payloadtype == "json":
-        headers = {'Content-Type': 'application/json'}
+def makeRequest(url, payload, headers, method="POST"):
     if method == "POST":
         response = requests.post(url, data=payload, headers=headers, verify=False)
     # print(response.text)

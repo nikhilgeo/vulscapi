@@ -23,13 +23,14 @@ class Nexpose:
                              attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
             self.nexpose_host = scanner_info['host']
             self.reqURL = self.nexpose_host + "/api/1.1/xml"
+            self.headers = {'Content-Type': 'text/xml'}
             xmlTree = ElementTree(xmlReq)
             f = BytesIO()
             xmlTree.write(f, encoding='utf-8',
                           xml_declaration=True)  # required so that xml declarations will come up in generated XML
             loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
             # print(self.loginReqXML)
-            responseXML = util.makeRequest(self.reqURL, loginReqXML, "xml")
+            responseXML = util.makeRequest(self.reqURL, loginReqXML, self.headers)
             tree = ElementTree(fromstring(responseXML))
             root = tree.getroot()
             loginResponse = root.get('success')
@@ -61,7 +62,7 @@ class Nexpose:
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         saveSiteReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
         # print(saveSiteReqXML)
-        responseXML = util.makeRequest(self.reqURL, saveSiteReqXML, "xml")
+        responseXML = util.makeRequest(self.reqURL, saveSiteReqXML, self.headers)
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
         addSiteResponse = root.get('success')
@@ -97,7 +98,7 @@ class Nexpose:
                           xml_declaration=True)  # required so that xml declarations will come up in generated XML
             usrSaveReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
             # print(usrSaveReqXML)
-            responseXML = util.makeRequest(self.reqURL, usrSaveReqXML, "xml")
+            responseXML = util.makeRequest(self.reqURL, usrSaveReqXML, self.headers)
             # print(responseXML)
             tree = ElementTree(fromstring(responseXML))
             root = tree.getroot()
@@ -128,7 +129,7 @@ class Nexpose:
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         logoutReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
         #print(logoutReqXML)
-        responseXML = util.makeRequest(self.reqURL, logoutReqXML, "xml")
+        responseXML = util.makeRequest(self.reqURL, logoutReqXML, self.headers)
 
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
