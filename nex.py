@@ -1,6 +1,5 @@
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 from defusedxml.ElementTree import parse, fromstring
-import requests
 from io import BytesIO
 
 import util
@@ -11,6 +10,7 @@ from util import PrintUtil
 class Nexpose:
     '''All the Nexpose API are handled here'''
 
+    # Payload type XML
     # self. - for all members that are common to the object without self scope is limited to the block
     # self must the default mandatory parameter in all member functions
     # Caution !!: __init__ have two underscores on each side
