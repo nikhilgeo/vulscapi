@@ -1,5 +1,6 @@
 from defusedxml.ElementTree import parse
 import nex
+import nes
 from util import PrintUtil
 
 
@@ -33,9 +34,9 @@ def readScanner(scannerName):
     root = tree.getroot()
     scanner = root.find(scannerName)
     # print(scanner)
-    print("Nexpose Host@:" + scanner.find('host').text)
+    print(scannerName + " Host@:" + scanner.find('host').text)
     # print(scanner.find('username').text)
-    usr_passwd = input("Please enter your password for Nexpose: ")
+    usr_passwd = input("Please enter your password for " + scannerName + ": ")
     user_cred = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
     return user_cred
 
@@ -43,11 +44,20 @@ def readScanner(scannerName):
 # Reading the Access Request
 access_details = readAccessReq()
 
+'''
 # ******NEXPOSE******
 # Read Nexpose Scanner Info, from config file
 scanner_info = readScanner('nexpose')
-# Initilize the Nexpose connection
+# Login into Nexpose scanner
 nexposeObj = nex.Nexpose(scanner_info)
-nexposeObj.handleAccessReq(access_details)
 # SaveSite and Add User
-# TBD
+nexposeObj.handleAccessReq(access_details)
+'''
+# ******NESSUS******
+# Read Nexpose Scanner Info, from config file
+scanner_info = readScanner('nessus')
+# Login into Nexpose scanner
+nessusObj = nes.Nessus(scanner_info)
+# SaveSite and Add User
+#nexposeObj.handleAccessReq(access_details)
+
