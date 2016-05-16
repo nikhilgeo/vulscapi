@@ -23,9 +23,10 @@ class PrintUtil:
 
         # Make APIv1.1 POST requests
 
-
+'''
 def makeRequest(url, payload, headers, method="POST"):
     if method == "POST":
         response = requests.post(url, data=payload, headers=headers, verify=False)
     # print(response.text)
     return response.content
+'''
