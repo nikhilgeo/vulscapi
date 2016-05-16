@@ -44,6 +44,7 @@ def readScanner(scannerName):
 # Reading the Access Request
 access_details = readAccessReq()
 
+
 '''
 # ******NEXPOSE******
 # Read Nexpose Scanner Info, from config file
@@ -58,6 +59,8 @@ nexposeObj.handleAccessReq(access_details)
 scanner_info = readScanner('nessus')
 # Login into Nexpose scanner
 nessusObj = nes.Nessus(scanner_info)
-# SaveSite and Add User
+# Add User
+nessusObj.handleAccessReq(access_details)
+
 #nexposeObj.handleAccessReq(access_details)
 
