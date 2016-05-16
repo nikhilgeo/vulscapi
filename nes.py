@@ -2,6 +2,7 @@ import json
 import util
 from util import PrintUtil
 
+
 class Nessus:
     """All Nessus related functions are handled here"""
 
@@ -17,17 +18,13 @@ class Nessus:
             sessionreqURL = self.nessus_host + "/session"
             payload = {'username': scanner_info['uname'], 'password': scanner_info['passwd']}
             response = util.makeRequest(sessionreqURL, json.dumps(payload), "json")
-            print(json.dumps(response))
-            '''
-            loginResponse = root.get('success')
-            if (loginResponse == "1"):
-                self.session_id = root.get('session-id')
-                PrintUtil.printSuccess("Logged in to Nexpose Scanner")
-            else:
-                fa = root.find('Failure')
-                ex = fa.find('Exception')
-                msg = ex.find('message').text
-                PrintUtil.printError("Login Failure: " + msg)
-            '''
+            json_rep = json.loads(response.decode("utf-8"))  # convert to string then convert to json
+            #print(json_rep)
+            if 'error' in json_rep:
+                PrintUtil.printError("Login Failure: " + json_rep['error'])
+                return
+            if 'token' in json_rep:
+                PrintUtil.printSuccess("Logged in to Nessus Scanner")
+                self.session_token = json_rep['token']
         except Exception as e:
             PrintUtil.printException(str(e))
