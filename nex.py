@@ -2,6 +2,8 @@ from xml.etree.ElementTree import Element, SubElement, ElementTree
 from defusedxml.ElementTree import parse, fromstring
 import requests
 from io import BytesIO
+
+import util
 from util import PrintUtil
 
 
@@ -13,19 +15,21 @@ class Nexpose:
     # self must the default mandatory parameter in all member functions
     # Caution !!: __init__ have two underscores on each side
 
+
     def __init__(self, scanner_info):
         try:
             # API v1.1 Login and get the session here
             xmlReq = Element('LoginRequest',
                              attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
             self.nexpose_host = scanner_info['host']
+            self.reqURL = self.nexpose_host + "/api/1.1/xml"
             xmlTree = ElementTree(xmlReq)
             f = BytesIO()
             xmlTree.write(f, encoding='utf-8',
                           xml_declaration=True)  # required so that xml declarations will come up in generated XML
             loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
             # print(self.loginReqXML)
-            responseXML = self.makeRequest(loginReqXML)
+            responseXML = util.makeRequest(self.reqURL, loginReqXML, "xml")
             tree = ElementTree(fromstring(responseXML))
             root = tree.getroot()
             loginResponse = root.get('success')
@@ -39,14 +43,6 @@ class Nexpose:
                 PrintUtil.printError("Login Failure: " + msg)
         except Exception as e:
             PrintUtil.printException(str(e))
-
-
-    #Make APIv1.1 POST requests
-    def makeRequest(self, requestXML):
-        headers = {'Content-Type': 'text/xml'}
-        response = requests.post(self.nexpose_host + "/api/1.1/xml", data=requestXML, headers=headers, verify=False)
-        #print(response.text)
-        return (response.content)
 
     # API v1.1 SiteSave- Save changes to a new or existing site.
     def addSite(self, access_req):
@@ -65,7 +61,7 @@ class Nexpose:
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         saveSiteReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
         # print(saveSiteReqXML)
-        responseXML = self.makeRequest(saveSiteReqXML)
+        responseXML = util.makeRequest(self.reqURL, saveSiteReqXML, "xml")
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
         addSiteResponse = root.get('success')
@@ -101,20 +97,18 @@ class Nexpose:
                           xml_declaration=True)  # required so that xml declarations will come up in generated XML
             usrSaveReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
             # print(usrSaveReqXML)
-            responseXML = self.makeRequest(usrSaveReqXML)
+            responseXML = util.makeRequest(self.reqURL, usrSaveReqXML, "xml")
             # print(responseXML)
             tree = ElementTree(fromstring(responseXML))
             root = tree.getroot()
             addUserReq = root.get('success')
             if (addUserReq == "1"):
                 PrintUtil.printSuccess("Created user: " + userinfo[0])
-                return True
             else:
                 fa = root.find('Failure')
                 ex = fa.find('Exception')
                 msg = ex.find('message').text
                 PrintUtil.printError("User creation failed: " + msg)
-                return False
 
     def handleAccessReq(self, access_req):
         # print("TestMofule")
@@ -134,7 +128,8 @@ class Nexpose:
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         logoutReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
         #print(logoutReqXML)
-        responseXML = self.makeRequest(logoutReqXML)
+        responseXML = util.makeRequest(self.reqURL, logoutReqXML, "xml")
+
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
         logoutResponse = root.get('success')

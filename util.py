@@ -1,3 +1,6 @@
+import requests
+
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -17,3 +20,15 @@ class PrintUtil:
 
     def printException(msg):
         print(bcolors.FAIL + "[EXCEPTION]" + msg + bcolors.ENDC)
+
+        # Make APIv1.1 POST requests
+
+
+def makeRequest(url, payload, payloadtype):
+    if payloadtype == "xml":
+        headers = {'Content-Type': 'text/xml'}
+    if payloadtype == "json":
+        headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, data=payload, headers=headers, verify=False)
+    # print(response.text)
+    return (response.content)
