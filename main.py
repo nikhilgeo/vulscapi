@@ -1,6 +1,7 @@
 from defusedxml.ElementTree import parse
 import nex
 import nes
+import qua
 from util import PrintUtil
 
 
@@ -54,6 +55,8 @@ nexposeObj = nex.Nexpose(scanner_info)
 # SaveSite and Add User
 nexposeObj.handleAccessReq(access_details)
 '''
+
+'''
 # ******NESSUS******
 # Read Nexpose Scanner Info, from config file
 scanner_info = readScanner('nessus')
@@ -63,4 +66,14 @@ nessusObj = nes.Nessus(scanner_info)
 nessusObj.handleAccessReq(access_details)
 
 #nexposeObj.handleAccessReq(access_details)
+'''
 
+
+# ******Qualys******
+# Read Qualys Scanner Info, from config file
+scanner_info = readScanner('qualys')
+# Login into Nexpose scanner
+qualysObj = qua.Qualys(scanner_info)
+# Add User
+#qualysObj.handleAccessReq(access_details)
+#nexposeObj.handleAccessReq(access_details)
