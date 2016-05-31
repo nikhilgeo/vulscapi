@@ -25,7 +25,7 @@ def readAccessReq():
     # print(ip)
     ip = ip.strip(',')
     access_req = {'userList': usrlst, 'ip': ip, 'site_name': site_name, 'site_desc': site_desc}
-    #print(access_req)
+    print(access_req)
     return access_req
 
 
@@ -75,5 +75,4 @@ scanner_info = readScanner('qualys')
 # Login into Nexpose scanner
 qualysObj = qua.Qualys(scanner_info)
 # Add User
-#qualysObj.handleAccessReq(access_details)
-#nexposeObj.handleAccessReq(access_details)
+qualysObj.handleAccessReq(access_details, scanner_info)

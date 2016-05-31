@@ -34,7 +34,7 @@ class Qualys:
         self.url = self.qualys_host + "/api/2.0/fo/asset/ip/?action=add"
         self.url = self.url + "&ips=" +access_req['ip'] +"&enable_vm=1"
         response_aasset_add = self.makeRequest()
-        print(response_aasset_add.content)
+        # print(response_aasset_add.content)
         responseXML = response_aasset_add.content
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
@@ -47,17 +47,58 @@ class Qualys:
             PrintUtil.printError("Asset adition Failure: " + asset_status)
             return False
 
+    def add_asset_grp(self, access_req):
+        scanner_id = self.get_scanners()
+        self.url = self.qualys_host + "/api/2.0/fo/asset/group/?action=add"
+        self.url = self.url + "&ips=" +access_req['ip'] +"&title=" + access_req['site_name']
+        if scanner_id is not None:
+            self.url = self.url + "&appliance_ids="+scanner_id
+            # print(self.url)
+            response_asset_grp_add = self.makeRequest()
+            # print(response_asset_grp_add.content)
+            responseXML = response_asset_grp_add.content
+            tree = ElementTree(fromstring(responseXML))
+            root = tree.getroot()
+            asset_response = root.find('RESPONSE')
+            asset_status = asset_response.find('TEXT').text
+            if asset_status == "Asset Group successfully added.":
+                PrintUtil.printSuccess("Asset group added to Qualys Scanner")
+                return True
+            else:
+                PrintUtil.printError("Asset group addition Failure: " + asset_status)
+                return False
+        else:
+            PrintUtil.printError("Asset Group adition Failure: Scanner id not found")
+            return False
+
+    def get_scanners(self):
+        self.url = self.qualys_host + "/api/2.0/fo/appliance/?action=list"
+        response_get_scanners = self.makeRequest()
+        # print(response_get_scanners.content)
+        responseXML = response_get_scanners.content
+        tree = ElementTree(fromstring(responseXML))
+        root = tree.getroot()
+        response = root.find('RESPONSE')
+        appliance_list = response.find('APPLIANCE_LIST')
+        appliance = appliance_list.findall('APPLIANCE')  # we take only the first appliance, coz no multiple appliance nw.
+        appliance_id = appliance[0].find('ID').text
+        # print(appliance_id)
+        return appliance_id
+
 
     def makeRequest(self):
         response = requests.post(self.url, headers=self.headers, verify=False, auth=(self.uname, self.passwd))
-        print(response.headers)
+        # print(response.headers)
         return response
 
     def handleAccessReq(self, access_req, scanner_info):
         try:
+
+            self.get_scanners()
             asset_adittion_success = self.add_asset(access_req)
-                # if asset_adittion_success:
-                # create_user_status = self.create_user(access_req, )
+            if asset_adittion_success:
+                asset_grp_add_status = self.add_asset_grp(access_req)
+                # create_user_status = self.create_user(access_req, access_req)
                 # self.logout_user()
         except Exception as e:
             PrintUtil.printException(str(e))
