@@ -25,7 +25,7 @@ def readAccessReq():
     # print(ip)
     ip = ip.strip(',')
     access_req = {'userList': usrlst, 'ip': ip, 'site_name': site_name, 'site_desc': site_desc}
-    print(access_req)
+    # print(access_req)
     return access_req
 
 
@@ -35,7 +35,7 @@ def readScanner(scannerName):
     root = tree.getroot()
     scanner = root.find(scannerName)
     # print(scanner)
-    print(scannerName + " Host@:" + scanner.find('host').text)
+    print(scannerName + " host@:" + scanner.find('host').text)
     # print(scanner.find('username').text)
     usr_passwd = input("Please enter your password for " + scannerName + ": ")
     user_cred = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
