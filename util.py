@@ -20,6 +20,8 @@ class PrintUtil:
 
     def printException(msg):
         print(bcolors.FAIL + "[EXCEPTION]" + msg + bcolors.ENDC)
+    def printLog(msg):
+        print(bcolors.OKBLUE + "[LOG]" + msg + bcolors.ENDC)
 
         # Make APIv1.1 POST requests
 
