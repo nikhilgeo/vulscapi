@@ -42,15 +42,15 @@ Scanner appliance information must be provided in **_scanner_details.xml_**
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <scanner_details>
-      <nessus>
+      <nessus enabled=(1,0)>
          <host>nessus_host</host>
          <username>nessus_uname</username>
       </nessus>
-      <nexpose>
+      <nexpose enabled=(1,0)>
          <host>nexpose_host</host>
          <username>nexpose_uname</username>
       </nexpose>
-      <qualys>
+      <qualys enabled=(1,0)>
          <host>qualys_host</host>
          <username>qualys_uname</username>
       </qualys>
