@@ -9,7 +9,7 @@ from util import PrintUtil
 
 # Have not used the diffusedXML library as the XML construction functions is only done here and they are not supported.
 class Nexpose:
-    '''All the Nexpose API are handled here'''
+    """All the Nexpose API are handled here"""
 
     # Payload type XML
     # self. - for all members that are common to the object without self scope is limited to the block
@@ -18,37 +18,51 @@ class Nexpose:
 
     def makeRequest(self, url, payload, headers):
         response = requests.post(url, data=payload, headers=headers, verify=False)
-        #print(response.text)
+        # print(response.text)
         return response.content
 
     def __init__(self, scanner_info):
         try:
-            # API v1.1 Login and get the session here
-            xmlReq = Element('LoginRequest',
-                             attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
             self.nexpose_host = scanner_info['host']
             self.reqURL = self.nexpose_host + "/api/1.1/xml"
             self.headers = {'Content-Type': 'text/xml'}
-            xmlTree = ElementTree(xmlReq)
-            f = BytesIO()
-            xmlTree.write(f, encoding='utf-8',
-                          xml_declaration=True)  # required so that xml declarations will come up in generated XML
-            loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
-            # print(self.loginReqXML)
-            responseXML = self.makeRequest(self.reqURL, loginReqXML, self.headers)
-            tree = ElementTree(fromstring(responseXML))
-            root = tree.getroot()
-            loginResponse = root.get('success')
-            if (loginResponse == "1"):
-                self.session_id = root.get('session-id')
-                PrintUtil.printSuccess("Logged in to Nexpose Scanner")
-            else:
-                fa = root.find('Failure')
-                ex = fa.find('Exception')
-                msg = ex.find('message').text
-                PrintUtil.printError("Login Failure: " + msg)
+            self.login_try = 0
         except Exception as e:
             PrintUtil.printException(str(e))
+
+    def login_nexpose(self, scanner_info):
+        # API v1.1 Login and get the session here
+        if self.login_try == 0:
+            xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
+        elif self.login_try == 1:
+            usr_name = input("Please enter your username for " + " Nexpose" + ": ")
+            usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
+            xmlReq = Element('LoginRequest', attrib={'user-id': usr_name, 'password': usr_passwd})
+        else:
+            PrintUtil.printError("Nexpose login attemts exceded maximum limit, skipping Nexpose tasks..")
+            return False
+
+        xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
+        xmlTree = ElementTree(xmlReq)
+        f = BytesIO()
+        xmlTree.write(f, encoding='utf-8',
+                      xml_declaration=True)  # required so that xml declarations will come up in generated XML
+        loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
+        # print(self.loginReqXML)
+        responseXML = self.makeRequest(self.reqURL, loginReqXML, self.headers)
+        tree = ElementTree(fromstring(responseXML))
+        root = tree.getroot()
+        loginResponse = root.get('success')
+        if (loginResponse == "1"):
+            self.session_id = root.get('session-id')
+            PrintUtil.printSuccess("Logged in to Nexpose Scanner")
+            return True
+        else:
+            fa = root.find('Failure')
+            ex = fa.find('Exception')
+            msg = ex.find('message').text
+            PrintUtil.printError("Login Failure: " + msg)
+            return False
 
     # API v1.1 SiteSave- Save changes to a new or existing site.
     def addSite(self, access_req):
@@ -116,14 +130,15 @@ class Nexpose:
                 msg = ex.find('message').text
                 PrintUtil.printError("User creation failed: " + msg)
 
-    def handleAccessReq(self, access_req):
+    def handleAccessReq(self, access_req, scanner_info):
         # print("TestMofule")
-        addSiteStatus = self.addSite(access_req)
-        if(addSiteStatus):
-            self.addUser(access_req)
-        else:
-            PrintUtil.printError("Site creation failed, aborting user creation..")
-        self.logoutOperation()
+        if self.login_nexpose(scanner_info):
+            addSiteStatus = self.addSite(access_req)
+            if addSiteStatus:
+                self.addUser(access_req)
+            else:
+                PrintUtil.printError("Site creation failed, aborting user creation..")
+            self.logoutOperation()
 
     # API v1.1 Logout and close the session
     def logoutOperation(self):
@@ -133,7 +148,7 @@ class Nexpose:
         xmlTree.write(f, encoding='utf-8',
                       xml_declaration=True)  # required so that xml declarations will come up in generated XML
         logoutReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
-        #print(logoutReqXML)
+        # print(logoutReqXML)
         responseXML = self.makeRequest(self.reqURL, logoutReqXML, self.headers)
 
         tree = ElementTree(fromstring(responseXML))
@@ -147,4 +162,3 @@ class Nexpose:
             ex = fa.find('Exception')
             msg = ex.find('message').text
             PrintUtil.printError("Logout Failure: " + msg)
-
