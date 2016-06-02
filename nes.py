@@ -36,7 +36,6 @@ class Nessus:
 
         if self.login_try == 0:
             payload = {'username': scanner_info['uname'], 'password': scanner_info['passwd']}
-            print("Inisdsdsdisd")
         elif self.login_try == 1:
             usr_name = input("Please enter your username for " + " Nessus" + ": ")
             usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
