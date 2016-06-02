@@ -5,12 +5,7 @@ import qua
 from util import PrintUtil
 
 
-# Global Varibale
-
-execute_nessus = 0
-execute_nexpose = 0
-execute_qualys = 0
-
+# Global variables
 
 # read access request from XML
 def readAccessReq():
@@ -35,75 +30,50 @@ def readAccessReq():
     # print(access_req)
     return access_req
 
+''' Execution entry point: It all starts from here '''
+access_details = readAccessReq()  # Reading the Access Request
+tree = parse('scanner_details.xml')  # Reading the Scanner Details
+root = tree.getroot()
 
-# read the scanner details
-def readScanner():
-    tree = parse('scanner_details.xml')
-    root = tree.getroot()
-    scanner_details = []  # 0- Nessus 1-Nexpose 2-Qualys
-
-    # Read Nessus scanner details
-    scanner = root.find('nessus')
-    execute_nessus = scanner.get('enabled')
-    if execute_nessus == 1:
-        # print(scanner)
-        print("Nessus" + " host@:" + scanner.find('host').text)
-        # print(scanner.find('username').text)
-        usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
-        user_cred_nessus = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
-        scanner_details.append(user_cred_nessus)
-
-    # Read Nexpose scanner details
-    scanner = root.find('nexpose')
-    execute_nexpose = scanner.get('enabled')
-    if execute_nexpose == 1:
-        # print(scanner)
-        print("Nexpose" + " host@:" + scanner.find('host').text)
-        # print(scanner.find('username').text)
-        usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
-        user_cred_nexpose = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
-        scanner_details.append(user_cred_nexpose)
-
-    # Read Qualys scanner details
-    scanner = root.find('qualys')
-    execute_qualys = scanner.get('enabled')
-    if execute_qualys == 1:
-        # print(scanner)
-        print("Qualys" + " host@:" + scanner.find('host').text)
-        # print(scanner.find('username').text)
-        usr_passwd = input("Please enter your password for " + " Qualys" + ": ")
-        user_cred_qualys = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
-        scanner_details.append(user_cred_qualys)
-
-    return scanner_details
-
-''' Execution entry point from here '''
-
-# Reading the Access Request
-access_details = readAccessReq()
-scanner_info = readScanner()  # 0- Nessus 1-Nexpose 2-Qualys
-
-''' Nessus Scanner '''
-if execute_nessus == 1:
+# Read Nessus scanner details
+scanner = root.find('nessus')
+execute_nessus = scanner.get('enabled')
+if execute_nessus == '1':
+    # print(scanner)
+    print("Nessus" + " host@:" + scanner.find('host').text)
+    # print(scanner.find('username').text)
+    usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
+    nessus_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
+    # Scanner task calls from here
     PrintUtil.printLog("Executing Nessus tasks")
-    # Login into Nexpose scanner
-    # nessusObj = nes.Nessus(scanner_info)
-    # Add User
-    # nessusObj.handleAccessReq(access_details)
+    nessusObj = nes.Nessus(nessus_details)  # Create Nessus scanner class obj
+    nessusObj.handleAccessReq(access_details, nessus_details)  # Login | Add User | Logout
 
-''' Nexpose Scanner '''
-if execute_nessus == 1:
+# Read Nexpose scanner details
+scanner = root.find('nexpose')
+execute_nexpose = scanner.get('enabled')
+if execute_nexpose == '1':
+    # print(scanner)
+    print("Nexpose" + " host@:" + scanner.find('host').text)
+    # print(scanner.find('username').text)
+    usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
+    nexpose_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
+    # Scanner task calls from here
     PrintUtil.printLog("Executing Nexpose tasks")
-    # Login into Nexpose scanner
-    # nexposeObj = nex.Nexpose(scanner_info)
-    # SaveSite and Add User
-    # nexposeObj.handleAccessReq(access_details)
+    nexposeObj = nex.Nexpose(nexpose_details)  # Create Nexpose scanner class obj
+    nexposeObj.handleAccessReq(access_details, nexpose_details)  # Login | SaveSite | Add User | Logout
 
-
-''' Qualys Scanner '''
-if execute_qualys == 1:
+# Read Qualys scanner details
+scanner = root.find('qualys')
+execute_qualys = scanner.get('enabled')
+if execute_qualys == '1':
+    # print(scanner)
+    print("Qualys" + " host@:" + scanner.find('host').text)
+    # print(scanner.find('username').text)
+    usr_passwd = input("Please enter your password for " + " Qualys" + ": ")
+    qualys_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
+    # Scanner task calls from here
     PrintUtil.printLog("Executing Qualys tasks")
-    # Login into Nexpose scanner
-    # qualysObj = qua.Qualys(scanner_info)
-    # Add User
-    # qualysObj.handleAccessReq(access_details, scanner_info)
+    qualysObj = qua.Qualys(qualys_details)  # Create Qualys scanner class obj
+    qualysObj.handleAccessReq(access_details, qualys_details)  # Login | Add Asset | Add Asset Grp | Add User
+
