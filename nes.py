@@ -5,13 +5,21 @@ import requests
 
 
 class Nessus:
-    """All Nessus related functions are handled here"""
+    """All Nessus related functions are here"""
 
     # Payload type JSON
     # Login:Nessus.session: create | Add it to your request using the following HTTP header: X-Cookie: token={token};
     # Create User: Nessus.users: create
     # Logout:Nessus.session: destroy
 
+    def __init__(self, scanner_info):
+        try:
+            # Login and get the session here
+            self.nessus_host = scanner_info['host']
+            self.headers = {'Content-Type': 'application/json'}
+            self.login_try = 0
+        except Exception as e:
+            PrintUtil.printException(str(e))
 
     def makeRequest(self, url, payload, headers, method="POST"):
         if method == "POST":
@@ -23,29 +31,41 @@ class Nessus:
             # print(response.text)
         return response.content
 
-    def __init__(self, scanner_info):
-        try:
-            # Login and get the session here
-            self.nessus_host = scanner_info['host']
-            self.headers = {'Content-Type': 'application/json'}
-            sessionreqURL = self.nessus_host + "/session"
+    def login_nessus(self, scanner_info):
+        sessionreqURL = self.nessus_host + "/session"
+
+        if self.login_try == 0:
             payload = {'username': scanner_info['uname'], 'password': scanner_info['passwd']}
-            response = self.makeRequest(sessionreqURL, json.dumps(payload), self.headers)
-            json_rep = json.loads(response.decode("utf-8"))  # convert to string then convert to json
-            # print(json_rep)
-            if self.status_code == 200:
-                self.session_token = json_rep['token']
-                self.headers.update({'X-Cookie': 'token='+self.session_token}) # session token added to HTTP header
-                #print(self.headers)
-                PrintUtil.printSuccess("Logged in to Nessus Scanner")
-            if self.status_code == 400:
-                PrintUtil.printError("Login Failure: username format is not valid")
-            if self.status_code == 401:
-                PrintUtil.printError("Login Failure: username or password is invalid")
-            if self.status_code == 500:
-                PrintUtil.printError("Login Failure:  too many users are connected")
-        except Exception as e:
-            PrintUtil.printException(str(e))
+            print("Inisdsdsdisd")
+        elif self.login_try == 1:
+            usr_name = input("Please enter your username for " + " Nessus" + ": ")
+            usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
+            payload = {'username': usr_name, 'password': usr_passwd}
+        else:
+            PrintUtil.printError("Nessus login attemts exceded maximum limit, skipping Nessus tasks..")
+            return False
+
+        response = self.makeRequest(sessionreqURL, json.dumps(payload), self.headers)
+        json_rep = json.loads(response.decode("utf-8"))  # convert to string then convert to json
+        # print(json_rep)
+        if self.status_code == 200:
+            self.session_token = json_rep['token']
+            self.headers.update({'X-Cookie': 'token=' + self.session_token})  # session token added to HTTP header
+            # print(self.headers)
+            PrintUtil.printSuccess("Logged in to Nessus Scanner")
+            return True
+        if self.status_code == 400:
+            PrintUtil.printError("Login Failure: username format is not valid")
+            self.login_try += 1
+            self.login_nessus(scanner_info)
+        if self.status_code == 401:
+            PrintUtil.printError("Login Failure: username or password is invalid")
+            self.login_try += 1
+            self.login_nessus(scanner_info)
+        if self.status_code == 500:
+            PrintUtil.printError("Login Failure:  too many users are connected")
+            self.login_try += 1
+            self.login_nessus(scanner_info)
 
     def create_user(self, access_req):
         try:
@@ -59,9 +79,9 @@ class Nessus:
                            'name': userinfo[1], 'email': userinfo[2], 'type': 'local'}
                 response = self.makeRequest(create_user_URL, json.dumps(payload), self.headers)
                 json_rep = json.loads(response.decode("utf-8"))
-                #print(json_rep)
+                # print(json_rep)
                 if self.status_code == 200:
-                    PrintUtil.printSuccess("Created user: "+userinfo[1])
+                    PrintUtil.printSuccess("Created user: " + userinfo[1])
                 if self.status_code == 400:
                     PrintUtil.printError("User creation Failure: Invalid field request")
                 if self.status_code == 403:
@@ -74,9 +94,9 @@ class Nessus:
 
     def logout_user(self):
         try:
-            #destroy the user session
+            # destroy the user session
             logoutURL = self.nessus_host + "/session"
-            response = self.makeRequest(logoutURL, {}, self.headers,"DELETE")
+            response = self.makeRequest(logoutURL, {}, self.headers, "DELETE")
             if self.status_code == 200:
                 PrintUtil.printSuccess("Logged out of Nessus Scanner")
             if self.status_code == 401:
@@ -84,9 +104,10 @@ class Nessus:
         except Exception as e:
             PrintUtil.printException(str(e))
 
-    def handleAccessReq(self, access_req):
+    def handleAccessReq(self, access_req, scanner_info):
         try:
-            create_user_status = self.create_user(access_req)
-            self.logout_user()
+            if self.login_nessus(scanner_info):
+                create_user_status = self.create_user(access_req)
+                self.logout_user()
         except Exception as e:
             PrintUtil.printException(str(e))
