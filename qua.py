@@ -26,15 +26,16 @@ class Qualys:
         self.headers = {'X-Requested-With': 'vulscapi'}
         self.uname = scanner_info['uname']
         self.passwd = scanner_info['passwd']
+        self.login_try = 0
+
 
     def add_asset(self, access_req):
         self.url = self.qualys_host + "/api/2.0/fo/asset/ip/"
         params = {'action': 'add', 'ips': access_req['ip'], 'enable_vm': '1'}
         max_login_try_limit = 2
-        self.login_try = 0
 
-        while True:
-            if self.login_try > 0 and self.login_try < max_login_try_limit:
+        while True:  # Login check done here, if it fails here then rest all task is skipped
+            if (self.login_try > 0) and (self.login_try < max_login_try_limit):
                 self.uname = input("Please enter your username for " + " Qualys" + ": ")
                 self.passwd = input("Please enter your password for " + " Qualys" + ": ")
             elif self.login_try >= max_login_try_limit:
@@ -76,6 +77,7 @@ class Qualys:
                 return True
             else:
                 PrintUtil.printError("Asset group addition Failure: " + asset_status)
+                PrintUtil.printLog("Skipping remaning Qualys tasks..")
                 return False
         else:
             PrintUtil.printError("Asset Group adition Failure: Scanner id not found")
