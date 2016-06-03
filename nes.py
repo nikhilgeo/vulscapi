@@ -33,38 +33,36 @@ class Nessus:
 
     def login_nessus(self, scanner_info):
         sessionreqURL = self.nessus_host + "/session"
+        max_login_try_limit = 2
+        while True:
+            if self.login_try == 0:
+                payload = {'username': scanner_info['uname'], 'password': scanner_info['passwd']}
+            elif self.login_try > 0 and self.login_try < max_login_try_limit:
+                usr_name = input("Please enter your username for " + " Nessus" + ": ")
+                usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
+                payload = {'username': usr_name, 'password': usr_passwd}
+            else:
+                PrintUtil.printError("Nessus login attemts exceded maximum limit, skipping Nessus tasks..")
+                return False
 
-        if self.login_try == 0:
-            payload = {'username': scanner_info['uname'], 'password': scanner_info['passwd']}
-        elif self.login_try == 1:
-            usr_name = input("Please enter your username for " + " Nessus" + ": ")
-            usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
-            payload = {'username': usr_name, 'password': usr_passwd}
-        else:
-            PrintUtil.printError("Nessus login attemts exceded maximum limit, skipping Nessus tasks..")
-            return False
-
-        response = self.makeRequest(sessionreqURL, json.dumps(payload), self.headers)
-        json_rep = json.loads(response.decode("utf-8"))  # convert to string then convert to json
-        # print(json_rep)
-        if self.status_code == 200:
-            self.session_token = json_rep['token']
-            self.headers.update({'X-Cookie': 'token=' + self.session_token})  # session token added to HTTP header
-            # print(self.headers)
-            PrintUtil.printSuccess("Logged in to Nessus Scanner")
-            return True
-        if self.status_code == 400:
-            PrintUtil.printError("Login Failure: username format is not valid")
-            self.login_try += 1
-            self.login_nessus(scanner_info)
-        if self.status_code == 401:
-            PrintUtil.printError("Login Failure: username or password is invalid")
-            self.login_try += 1
-            self.login_nessus(scanner_info)
-        if self.status_code == 500:
-            PrintUtil.printError("Login Failure:  too many users are connected")
-            self.login_try += 1
-            self.login_nessus(scanner_info)
+            response = self.makeRequest(sessionreqURL, json.dumps(payload), self.headers)
+            json_rep = json.loads(response.decode("utf-8"))  # convert to string then convert to json
+            # print(json_rep)
+            if self.status_code == 200:
+                self.session_token = json_rep['token']
+                self.headers.update({'X-Cookie': 'token=' + self.session_token})  # session token added to HTTP header
+                # print(self.headers)
+                PrintUtil.printSuccess("Logged in to Nessus Scanner")
+                return True
+            elif self.status_code == 400:
+                PrintUtil.printError("Login Failure: username format is not valid")
+                self.login_try += 1
+            elif self.status_code == 401:
+                PrintUtil.printError("Login Failure: username or password is invalid")
+                self.login_try += 1
+            elif self.status_code == 500:
+                PrintUtil.printError("Login Failure:  too many users are connected")
+                self.login_try += 1
 
     def create_user(self, access_req):
         try:

@@ -32,37 +32,40 @@ class Nexpose:
 
     def login_nexpose(self, scanner_info):
         # API v1.1 Login and get the session here
-        if self.login_try == 0:
-            xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
-        elif self.login_try == 1:
-            usr_name = input("Please enter your username for " + " Nexpose" + ": ")
-            usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
-            xmlReq = Element('LoginRequest', attrib={'user-id': usr_name, 'password': usr_passwd})
-        else:
-            PrintUtil.printError("Nexpose login attemts exceded maximum limit, skipping Nexpose tasks..")
-            return False
+        max_login_try_limit = 2
 
-        xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
-        xmlTree = ElementTree(xmlReq)
-        f = BytesIO()
-        xmlTree.write(f, encoding='utf-8',
-                      xml_declaration=True)  # required so that xml declarations will come up in generated XML
-        loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
-        # print(self.loginReqXML)
-        responseXML = self.makeRequest(self.reqURL, loginReqXML, self.headers)
-        tree = ElementTree(fromstring(responseXML))
-        root = tree.getroot()
-        loginResponse = root.get('success')
-        if (loginResponse == "1"):
-            self.session_id = root.get('session-id')
-            PrintUtil.printSuccess("Logged in to Nexpose Scanner")
-            return True
-        else:
-            fa = root.find('Failure')
-            ex = fa.find('Exception')
-            msg = ex.find('message').text
-            PrintUtil.printError("Login Failure: " + msg)
-            return False
+        while True:
+            if self.login_try == 0:
+                xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
+            elif self.login_try > 0 and self.login_try < max_login_try_limit:
+                usr_name = input("Please enter your username for " + " Nexpose" + ": ")
+                usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
+                xmlReq = Element('LoginRequest', attrib={'user-id': usr_name, 'password': usr_passwd})
+            else:
+                PrintUtil.printError("Nexpose login attemts exceded maximum limit, skipping Nexpose tasks..")
+                return False
+
+            xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
+            xmlTree = ElementTree(xmlReq)
+            f = BytesIO()
+            xmlTree.write(f, encoding='utf-8', xml_declaration=True)  # required so that xml declarations will come up in generated XML
+            loginReqXML = f.getvalue().decode("utf-8")  # converts bytes to string
+            # print(self.loginReqXML)
+            responseXML = self.makeRequest(self.reqURL, loginReqXML, self.headers)
+            tree = ElementTree(fromstring(responseXML))
+            root = tree.getroot()
+            loginResponse = root.get('success')
+            if (loginResponse == "1"):
+                self.session_id = root.get('session-id')
+                PrintUtil.printSuccess("Logged in to Nexpose Scanner")
+                return True
+            else:
+                fa = root.find('Failure')
+                ex = fa.find('Exception')
+                msg = ex.find('message').text
+                PrintUtil.printError("Login Failure: " + msg)
+                self.login_try += 1
+
 
     # API v1.1 SiteSave- Save changes to a new or existing site.
     def addSite(self, access_req):
