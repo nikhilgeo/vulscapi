@@ -2,7 +2,7 @@ from defusedxml.ElementTree import parse
 import nex
 import nes
 import qua
-from util import PrintUtil
+from util import Utilities
 
 
 # Global variables
@@ -45,7 +45,7 @@ if execute_nessus == '1':
     usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
     nessus_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
     # Scanner task calls from here
-    PrintUtil.printLog("Executing Nessus tasks")
+    Utilities.printLog("Executing Nessus tasks")
     nessusObj = nes.Nessus(nessus_details)  # Create Nessus scanner class obj
     nessusObj.handleAccessReq(access_details, nessus_details)  # Login | Add User | Logout
 
@@ -59,7 +59,7 @@ if execute_nexpose == '1':
     usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
     nexpose_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
     # Scanner task calls from here
-    PrintUtil.printLog("Executing Nexpose tasks")
+    Utilities.printLog("Executing Nexpose tasks")
     nexposeObj = nex.Nexpose(nexpose_details)  # Create Nexpose scanner class obj
     nexposeObj.handleAccessReq(access_details, nexpose_details)  # Login | SaveSite | Add User | Logout
 
@@ -73,7 +73,7 @@ if execute_qualys == '1':
     usr_passwd = input("Please enter your password for " + " Qualys" + ": ")
     qualys_details = {'uname': scanner.find('username').text, 'passwd': usr_passwd, 'host': scanner.find('host').text}
     # Scanner task calls from here
-    PrintUtil.printLog("Executing Qualys tasks")
+    Utilities.printLog("Executing Qualys tasks")
     qualysObj = qua.Qualys(qualys_details)  # Create Qualys scanner class obj
     qualysObj.handleAccessReq(access_details, qualys_details)  # Login | Add Asset | Add Asset Grp | Add User
 

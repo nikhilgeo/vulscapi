@@ -1,12 +1,11 @@
 import requests
 from defusedxml.ElementTree import fromstring
 from xml.etree.ElementTree import ElementTree
-
-from util import PrintUtil
+from util import Utilities
 
 
 class Qualys:
-    ''' All Qualys related functions are handled here '''
+    """ All Qualys related functions are handled here """
 
     # Account Location Qualys US Platform 1 | API Server URL: https://qualysapi.qualys.com
     # URL encode variables when using the Qualys API.
@@ -28,7 +27,6 @@ class Qualys:
         self.passwd = scanner_info['passwd']
         self.login_try = 0
 
-
     def add_asset(self, access_req):
         self.url = self.qualys_host + "/api/2.0/fo/asset/ip/"
         params = {'action': 'add', 'ips': access_req['ip'], 'enable_vm': '1'}
@@ -39,7 +37,7 @@ class Qualys:
                 self.uname = input("Please enter your username for " + " Qualys" + ": ")
                 self.passwd = input("Please enter your password for " + " Qualys" + ": ")
             elif self.login_try >= max_login_try_limit:
-                PrintUtil.printError("Qualys login attemts exceded maximum limit, skipping Qualys tasks..")
+                Utilities.printError("Qualys login attemts exceded maximum limit, skipping Qualys tasks..")
                 return False
             response_aasset_add = self.makeRequest(params)
             # print(response_aasset_add.content)
@@ -49,14 +47,14 @@ class Qualys:
             asset_response = root.find('RESPONSE')
             asset_status = asset_response.find('TEXT').text
             if asset_status == "IPs successfully added to Vulnerability Management":
-                PrintUtil.printSuccess("Asset added to Qualys Scanner")
+                Utilities.printSuccess("Asset added to Qualys Scanner")
                 return True
             elif asset_status == "Bad Login/Password":
-                PrintUtil.printError("Qualys login failed..")
+                Utilities.printError("Qualys login failed..")
                 self.login_try += 1
             else:
-                PrintUtil.printError("Asset adition Failure: " + asset_status)
-                PrintUtil.printLog("Skipping remaning Qualys tasks..")
+                Utilities.printError("Asset adition Failure: " + asset_status)
+                Utilities.printLog("Skipping remaning Qualys tasks..")
                 return False
 
     def add_asset_grp(self, access_req):
@@ -73,14 +71,14 @@ class Qualys:
             asset_response = root.find('RESPONSE')
             asset_status = asset_response.find('TEXT').text
             if asset_status == "Asset Group successfully added.":
-                PrintUtil.printSuccess("Asset group added to Qualys Scanner")
+                Utilities.printSuccess("Asset group added to Qualys Scanner")
                 return True
             else:
-                PrintUtil.printError("Asset group addition Failure: " + asset_status)
-                PrintUtil.printLog("Skipping remaning Qualys tasks..")
+                Utilities.printError("Asset group addition Failure: " + asset_status)
+                Utilities.printLog("Skipping remaning Qualys tasks..")
                 return False
         else:
-            PrintUtil.printError("Asset Group adition Failure: Scanner id not found")
+            Utilities.printError("Asset Group adition Failure: Scanner id not found")
             return False
 
     def get_scanners(self):
@@ -99,7 +97,7 @@ class Qualys:
             appliance = appliance_list.findall('APPLIANCE')  # we take only the first appliance, coz no multiple appliance nw.
             appliance_id = appliance[0].find('ID').text
         if response.find('TEXT') is not None: # Error condition
-            PrintUtil.printError("Failure to get the scanner list: "+ response.find('TEXT').text)
+            Utilities.printError("Failure to get the scanner list: "+ response.find('TEXT').text)
             appliance_id = None
         # print(appliance_id)
         return appliance_id
@@ -134,10 +132,10 @@ class Qualys:
             user_add_status_msg = asset_response.find('MESSAGE').text
             # print(user_add_status + user_add_status_msg)
             if user_add_status == "SUCCESS":
-                PrintUtil.printSuccess( user_add_status_msg +" for " + userinfo[1])
+                Utilities.printSuccess( user_add_status_msg +" for " + userinfo[1])
                 return True
             else:
-                PrintUtil.printError("User addition Failure: " + user_add_status_msg)
+                Utilities.printError("User addition Failure: " + user_add_status_msg)
                 return False
 
     def handleAccessReq(self, access_req, scanner_info):
@@ -149,4 +147,4 @@ class Qualys:
                     create_user_status = self.add_user(access_req)
                 # self.logout_user()
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))

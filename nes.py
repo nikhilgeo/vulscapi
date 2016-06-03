@@ -1,6 +1,6 @@
 import json
 import util
-from util import PrintUtil
+from util import Utilities
 import requests
 
 
@@ -42,7 +42,7 @@ class Nessus:
                 usr_passwd = input("Please enter your password for " + " Nessus" + ": ")
                 payload = {'username': usr_name, 'password': usr_passwd}
             else:
-                PrintUtil.printError("Nessus login attemts exceded maximum limit, skipping Nessus tasks..")
+                Utilities.printError("Nessus login attemts exceded maximum limit, skipping Nessus tasks..")
                 return False
 
             response = self.makeRequest(sessionreqURL, json.dumps(payload), self.headers)
@@ -52,16 +52,16 @@ class Nessus:
                 self.session_token = json_rep['token']
                 self.headers.update({'X-Cookie': 'token=' + self.session_token})  # session token added to HTTP header
                 # print(self.headers)
-                PrintUtil.printSuccess("Logged in to Nessus Scanner")
+                Utilities.printSuccess("Logged in to Nessus Scanner")
                 return True
             elif self.status_code == 400:
-                PrintUtil.printError("Login Failure: username format is not valid")
+                Utilities.printError("Login Failure: username format is not valid")
                 self.login_try += 1
             elif self.status_code == 401:
-                PrintUtil.printError("Login Failure: username or password is invalid")
+                Utilities.printError("Login Failure: username or password is invalid")
                 self.login_try += 1
             elif self.status_code == 500:
-                PrintUtil.printError("Login Failure:  too many users are connected")
+                Utilities.printError("Login Failure:  too many users are connected")
                 self.login_try += 1
 
     def create_user(self, access_req):
@@ -71,23 +71,23 @@ class Nessus:
             usrLst = access_req['userList']
             for user in usrLst:
                 userinfo = user.split(',')  # uname,name,email
-                pswd = userinfo[0] + '!vul5c4p1'
+                pswd = Utilities.gen_code()
                 payload = {'username': userinfo[0], 'password': pswd, 'permissions': '32',
                            'name': userinfo[1], 'email': userinfo[2], 'type': 'local'}
                 response = self.makeRequest(create_user_URL, json.dumps(payload), self.headers)
                 json_rep = json.loads(response.decode("utf-8"))
                 # print(json_rep)
                 if self.status_code == 200:
-                    PrintUtil.printSuccess("Created user: " + userinfo[1])
+                    Utilities.printSuccess("Created user: " + userinfo[1])
                 if self.status_code == 400:
-                    PrintUtil.printError("User creation Failure: Invalid field request")
+                    Utilities.printError("User creation Failure: Invalid field request")
                 if self.status_code == 403:
-                    PrintUtil.printError("User creation Failure: No permission to create a user")
+                    Utilities.printError("User creation Failure: No permission to create a user")
                 if self.status_code == 409:
-                    PrintUtil.printError("User creation Failure: Duplicate username")
+                    Utilities.printError("User creation Failure: Duplicate username")
 
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))
 
     def logout_user(self):
         try:
@@ -95,11 +95,11 @@ class Nessus:
             logoutURL = self.nessus_host + "/session"
             response = self.makeRequest(logoutURL, {}, self.headers, "DELETE")
             if self.status_code == 200:
-                PrintUtil.printSuccess("Logged out of Nessus Scanner")
+                Utilities.printSuccess("Logged out of Nessus Scanner")
             if self.status_code == 401:
-                PrintUtil.printSuccess("Logged out failure: No session exists")
+                Utilities.printSuccess("Logged out failure: No session exists")
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))
 
     def handleAccessReq(self, access_req, scanner_info):
         try:
@@ -107,4 +107,4 @@ class Nessus:
                 create_user_status = self.create_user(access_req)
                 self.logout_user()
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))

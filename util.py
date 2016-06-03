@@ -1,7 +1,10 @@
-import requests
+# import requests
+import string
+import random
 
 
-class bcolors:
+class Utilities:
+
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -10,25 +13,16 @@ class bcolors:
     ENDC = '\033[0m'
     EXCEPTION = '\033[96m'
 
-
-class PrintUtil:
     def printSuccess(msg):
-        print(bcolors.OKGREEN + "[OK]" + msg + bcolors.ENDC)
+        print(Utilities.OKGREEN + "[OK]" + msg + Utilities.ENDC)
 
     def printError(msg):
-        print(bcolors.FAIL + "[ERROR]" + msg + bcolors.ENDC)
+        print(Utilities.FAIL + "[ERROR]" + msg + Utilities.ENDC)
 
     def printException(msg):
-        print(bcolors.FAIL + "[EXCEPTION]" + msg + bcolors.ENDC)
+        print(Utilities.FAIL + "[EXCEPTION]" + msg + Utilities.ENDC)
     def printLog(msg):
-        print(bcolors.OKBLUE + "[LOG]" + msg + bcolors.ENDC)
+        print(Utilities.OKBLUE + "[LOG]" + msg + Utilities.ENDC)
 
-        # Make APIv1.1 POST requests
-
-'''
-def makeRequest(url, payload, headers, method="POST"):
-    if method == "POST":
-        response = requests.post(url, data=payload, headers=headers, verify=False)
-    # print(response.text)
-    return response.content
-'''
+    def gen_code(size = 16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+        return ''.join(random.SystemRandom().choice(chars) for _ in range(size))

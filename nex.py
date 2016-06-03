@@ -4,7 +4,7 @@ from io import BytesIO
 import requests
 
 import util
-from util import PrintUtil
+from util import Utilities
 
 
 # Have not used the diffusedXML library as the XML construction functions is only done here and they are not supported.
@@ -28,7 +28,7 @@ class Nexpose:
             self.headers = {'Content-Type': 'text/xml'}
             self.login_try = 0
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))
 
     def login_nexpose(self, scanner_info):
         # API v1.1 Login and get the session here
@@ -42,7 +42,7 @@ class Nexpose:
                 usr_passwd = input("Please enter your password for " + " Nexpose" + ": ")
                 xmlReq = Element('LoginRequest', attrib={'user-id': usr_name, 'password': usr_passwd})
             else:
-                PrintUtil.printError("Nexpose login attemts exceded maximum limit, skipping Nexpose tasks..")
+                Utilities.printError("Nexpose login attemts exceded maximum limit, skipping Nexpose tasks..")
                 return False
 
             xmlReq = Element('LoginRequest', attrib={'user-id': scanner_info['uname'], 'password': scanner_info['passwd']})
@@ -57,13 +57,13 @@ class Nexpose:
             loginResponse = root.get('success')
             if (loginResponse == "1"):
                 self.session_id = root.get('session-id')
-                PrintUtil.printSuccess("Logged in to Nexpose Scanner")
+                Utilities.printSuccess("Logged in to Nexpose Scanner")
                 return True
             else:
                 fa = root.find('Failure')
                 ex = fa.find('Exception')
                 msg = ex.find('message').text
-                PrintUtil.printError("Login Failure: " + msg)
+                Utilities.printError("Login Failure: " + msg)
                 self.login_try += 1
 
 
@@ -90,13 +90,13 @@ class Nexpose:
         addSiteResponse = root.get('success')
         if (addSiteResponse == "1"):
             self.site_id = root.get('site-id')
-            PrintUtil.printSuccess("Created site with site-id: " + self.site_id)
+            Utilities.printSuccess("Created site with site-id: " + self.site_id)
             return True
         else:
             fa = root.find('Failure')
             ex = fa.find('Exception')
             msg = ex.find('message').text
-            PrintUtil.printError("Site creation failed: " + msg)
+            Utilities.printError("Site creation failed: " + msg)
             return False
 
     # API v1.1 UserSave- Create a new user account, or update the settings for an existing account.
@@ -106,7 +106,7 @@ class Nexpose:
         for user in usrLst:
             usrSaveRequest = Element('UserSaveRequest', attrib={'session-id': self.session_id})
             userinfo = user.split(',')  # uname,name,email
-            pswd = userinfo[0] + '!vul5c4p1'
+            pswd = Utilities.gen_code()
             usrConfig_elem = SubElement(usrSaveRequest, 'UserConfig',
                                         attrib={'id': '-1', 'role-name': 'user', 'authsrcid': '-1', 'enabled': '1',
                                                 'name': userinfo[0], 'fullname': userinfo[1], 'email': userinfo[2],
@@ -126,12 +126,12 @@ class Nexpose:
             root = tree.getroot()
             addUserReq = root.get('success')
             if (addUserReq == "1"):
-                PrintUtil.printSuccess("Created user: " + userinfo[0])
+                Utilities.printSuccess("Created user: " + userinfo[0])
             else:
                 fa = root.find('Failure')
                 ex = fa.find('Exception')
                 msg = ex.find('message').text
-                PrintUtil.printError("User creation failed: " + msg)
+                Utilities.printError("User creation failed: " + msg)
 
     def handleAccessReq(self, access_req, scanner_info):
         # print("TestMofule")
@@ -140,7 +140,7 @@ class Nexpose:
             if addSiteStatus:
                 self.addUser(access_req)
             else:
-                PrintUtil.printError("Site creation failed, aborting user creation..")
+                Utilities.printError("Site creation failed, aborting user creation..")
             self.logoutOperation()
 
     # API v1.1 Logout and close the session
@@ -159,9 +159,9 @@ class Nexpose:
         logoutResponse = root.get('success')
         if (logoutResponse == "1"):
             self.session_id = root.get('session-id')
-            PrintUtil.printSuccess("Logged out of Nexpose Scanner")
+            Utilities.printSuccess("Logged out of Nexpose Scanner")
         else:
             fa = root.find('Failure')
             ex = fa.find('Exception')
             msg = ex.find('message').text
-            PrintUtil.printError("Logout Failure: " + msg)
+            Utilities.printError("Logout Failure: " + msg)
