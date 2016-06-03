@@ -21,7 +21,6 @@ class Qualys:
     # API v1 -- User Management, Basic HTTP Authentication
     # Qualys account credentials are transmitted over HTTPS for each API call
 
-
     def __init__(self, scanner_info):
         self.qualys_host = scanner_info['host']
         self.headers = {'X-Requested-With': 'vulscapi'}
@@ -31,19 +30,33 @@ class Qualys:
     def add_asset(self, access_req):
         self.url = self.qualys_host + "/api/2.0/fo/asset/ip/"
         params = {'action': 'add', 'ips': access_req['ip'], 'enable_vm': '1'}
-        response_aasset_add = self.makeRequest(params)
-        # print(response_aasset_add.content)
-        responseXML = response_aasset_add.content
-        tree = ElementTree(fromstring(responseXML))
-        root = tree.getroot()
-        asset_response = root.find('RESPONSE')
-        asset_status = asset_response.find('TEXT').text
-        if asset_status == "IPs successfully added to Vulnerability Management":
-            PrintUtil.printSuccess("Asset added to Qualys Scanner")
-            return True
-        else:
-            PrintUtil.printError("Asset adition Failure: " + asset_status)
-            return False
+        max_login_try_limit = 2
+        self.login_try = 0
+
+        while True:
+            if self.login_try > 0 and self.login_try < max_login_try_limit:
+                self.uname = input("Please enter your username for " + " Qualys" + ": ")
+                self.passwd = input("Please enter your password for " + " Qualys" + ": ")
+            elif self.login_try >= max_login_try_limit:
+                PrintUtil.printError("Qualys login attemts exceded maximum limit, skipping Qualys tasks..")
+                return False
+            response_aasset_add = self.makeRequest(params)
+            # print(response_aasset_add.content)
+            responseXML = response_aasset_add.content
+            tree = ElementTree(fromstring(responseXML))
+            root = tree.getroot()
+            asset_response = root.find('RESPONSE')
+            asset_status = asset_response.find('TEXT').text
+            if asset_status == "IPs successfully added to Vulnerability Management":
+                PrintUtil.printSuccess("Asset added to Qualys Scanner")
+                return True
+            elif asset_status == "Bad Login/Password":
+                PrintUtil.printError("Qualys login failed..")
+                self.login_try += 1
+            else:
+                PrintUtil.printError("Asset adition Failure: " + asset_status)
+                PrintUtil.printLog("Skipping remaning Qualys tasks..")
+                return False
 
     def add_asset_grp(self, access_req):
         scanner_id = self.get_scanners()
@@ -69,6 +82,7 @@ class Qualys:
             return False
 
     def get_scanners(self):
+
         self.url = self.qualys_host + "/api/2.0/fo/appliance/"
         parms = {'action': 'list'}
         response_get_scanners = self.makeRequest(parms)
@@ -76,11 +90,15 @@ class Qualys:
         responseXML = response_get_scanners.content
         tree = ElementTree(fromstring(responseXML))
         root = tree.getroot()
-        response = root.find('RESPONSE')
-        appliance_list = response.find('APPLIANCE_LIST')
-        appliance = appliance_list.findall(
-            'APPLIANCE')  # we take only the first appliance, coz no multiple appliance nw.
-        appliance_id = appliance[0].find('ID').text
+        if root.find('RESPONSE') is not None:
+            response = root.find('RESPONSE')
+        if response.find('APPLIANCE_LIST') is not None:
+            appliance_list = response.find('APPLIANCE_LIST')
+            appliance = appliance_list.findall('APPLIANCE')  # we take only the first appliance, coz no multiple appliance nw.
+            appliance_id = appliance[0].find('ID').text
+        if response.find('TEXT') is not None: # Error condition
+            PrintUtil.printError("Failure to get the scanner list: "+ response.find('TEXT').text)
+            appliance_id = None
         # print(appliance_id)
         return appliance_id
 
@@ -122,7 +140,6 @@ class Qualys:
 
     def handleAccessReq(self, access_req, scanner_info):
         try:
-            self.get_scanners()
             asset_adittion_success = self.add_asset(access_req)
             if asset_adittion_success:
                 asset_grp_add_status = self.add_asset_grp(access_req)
