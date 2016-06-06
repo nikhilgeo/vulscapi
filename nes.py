@@ -18,8 +18,9 @@ class Nessus:
             self.nessus_host = scanner_info['host']
             self.headers = {'Content-Type': 'application/json'}
             self.login_try = 0
+            self.message = ""
         except Exception as e:
-            PrintUtil.printException(str(e))
+            Utilities.printException(str(e))
 
     def makeRequest(self, url, payload, headers, method="POST"):
         if method == "POST":
@@ -79,12 +80,17 @@ class Nessus:
                 # print(json_rep)
                 if self.status_code == 200:
                     Utilities.printSuccess("Created user: " + userinfo[1])
+                    self.message = "Nessus\nUsername:" + userinfo[0]+"\nPassword:"+ pswd
+                    return True
                 if self.status_code == 400:
                     Utilities.printError("User creation Failure: Invalid field request")
+                    return False
                 if self.status_code == 403:
                     Utilities.printError("User creation Failure: No permission to create a user")
+                    return False
                 if self.status_code == 409:
                     Utilities.printError("User creation Failure: Duplicate username")
+                    return False
 
         except Exception as e:
             Utilities.printException(str(e))
@@ -106,5 +112,9 @@ class Nessus:
             if self.login_nessus(scanner_info):
                 create_user_status = self.create_user(access_req)
                 self.logout_user()
+            if create_user_status:
+                return self.message
+            else:
+                return "Nessus user creation failed"
         except Exception as e:
             Utilities.printException(str(e))

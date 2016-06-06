@@ -26,3 +26,7 @@ class Utilities:
 
     def gen_code(size = 16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         return ''.join(random.SystemRandom().choice(chars) for _ in range(size))
+    def write_to_file(msg):
+        f = open('User_details_toMail.txt', 'w')
+        f.write(msg)
+

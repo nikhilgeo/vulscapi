@@ -7,6 +7,7 @@ from util import Utilities
 
 # Global variables
 
+msg = ""
 # read access request from XML
 def readAccessReq():
     ip = ""
@@ -35,6 +36,7 @@ access_details = readAccessReq()  # Reading the Access Request
 tree = parse('scanner_details.xml')  # Reading the Scanner Details
 root = tree.getroot()
 
+# Access request handler for scanners
 # Read Nessus scanner details
 scanner = root.find('nessus')
 execute_nessus = scanner.get('enabled')
@@ -47,7 +49,7 @@ if execute_nessus == '1':
     # Scanner task calls from here
     Utilities.printLog("Executing Nessus tasks")
     nessusObj = nes.Nessus(nessus_details)  # Create Nessus scanner class obj
-    nessusObj.handleAccessReq(access_details, nessus_details)  # Login | Add User | Logout
+    msg = nessusObj.handleAccessReq(access_details, nessus_details)  # Login | Add User | Logout
 
 # Read Nexpose scanner details
 scanner = root.find('nexpose')
@@ -61,7 +63,7 @@ if execute_nexpose == '1':
     # Scanner task calls from here
     Utilities.printLog("Executing Nexpose tasks")
     nexposeObj = nex.Nexpose(nexpose_details)  # Create Nexpose scanner class obj
-    nexposeObj.handleAccessReq(access_details, nexpose_details)  # Login | SaveSite | Add User | Logout
+    msg += "\n"+nexposeObj.handleAccessReq(access_details, nexpose_details)  # Login | SaveSite | Add User | Logout
 
 # Read Qualys scanner details
 scanner = root.find('qualys')
@@ -76,4 +78,8 @@ if execute_qualys == '1':
     Utilities.printLog("Executing Qualys tasks")
     qualysObj = qua.Qualys(qualys_details)  # Create Qualys scanner class obj
     qualysObj.handleAccessReq(access_details, qualys_details)  # Login | Add Asset | Add Asset Grp | Add User
+    msg +="\nQualys\nDetails send to email."
+
+Utilities.write_to_file(msg)
+
 

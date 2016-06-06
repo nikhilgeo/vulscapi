@@ -27,6 +27,7 @@ class Nexpose:
             self.reqURL = self.nexpose_host + "/api/1.1/xml"
             self.headers = {'Content-Type': 'text/xml'}
             self.login_try = 0
+            self.msg = ""
         except Exception as e:
             Utilities.printException(str(e))
 
@@ -127,21 +128,28 @@ class Nexpose:
             addUserReq = root.get('success')
             if (addUserReq == "1"):
                 Utilities.printSuccess("Created user: " + userinfo[0])
+                self.msg = "Nexpose\nUsername:"+userinfo[0]+"\nPassword:"+pswd
+                return True
             else:
                 fa = root.find('Failure')
                 ex = fa.find('Exception')
                 msg = ex.find('message').text
                 Utilities.printError("User creation failed: " + msg)
+                return False
 
     def handleAccessReq(self, access_req, scanner_info):
         # print("TestMofule")
         if self.login_nexpose(scanner_info):
             addSiteStatus = self.addSite(access_req)
             if addSiteStatus:
-                self.addUser(access_req)
+                user_add_status = self.addUser(access_req)
             else:
                 Utilities.printError("Site creation failed, aborting user creation..")
             self.logoutOperation()
+        if user_add_status:
+            return self.msg
+        else:
+            return "Nexpose user creation failed"
 
     # API v1.1 Logout and close the session
     def logoutOperation(self):

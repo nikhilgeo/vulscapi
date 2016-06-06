@@ -11,15 +11,24 @@
 #     msg = ex.find('message').text
 #     print('\033[93m' + "Login Failure: " + msg + '\033[0m')
 
-from util import Utilities
+# from util import Utilities
+#
+#
+#
+# import string
+# import random
+#
+#
+# def gen_code(size=16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+#     return ''.join(random.SystemRandom().choice(chars) for _ in range(size))
+#
+# Utilities.printError(gen_code())
 
 
+msg = "outside\nnew\n"
 
-import string
-import random
+if True:
+    msg += "insideZZZZ121212ZZ"
 
-
-def gen_code(size=16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
-    return ''.join(random.SystemRandom().choice(chars) for _ in range(size))
-
-Utilities.printError(gen_code())
+f = open('User_details_toMail.txt', 'w')
+f.write(msg)
