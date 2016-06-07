@@ -30,6 +30,7 @@ class Utilities:
         print("Summary:")
         print("--------")
         print(msg)
+        print("--------")
         print("Summary also written to file \'User_details_toMail.txt\'")
         f = open('User_details_toMail.txt', 'w')
         f.write(msg)
