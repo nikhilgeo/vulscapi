@@ -56,3 +56,7 @@ Scanner appliance information must be provided in **_scanner_details.xml_**
       </qualys>
 </scanner_details>
 ```
+Dependency
+```
+pip install requests defusedxml
+```
