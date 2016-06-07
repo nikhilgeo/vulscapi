@@ -4,6 +4,8 @@ import nes
 import qua
 from util import Utilities
 import argparse
+import sys
+
 
 
 # Global variables
@@ -112,6 +114,9 @@ def access_request_handler():
 
 
 ''' Execution entry point: It all starts from here '''
+
+if sys.version_info[0] < 3:
+    raise "Must be using Python 3"
 
 # Command line parameter handling
 parser = argparse.ArgumentParser()
