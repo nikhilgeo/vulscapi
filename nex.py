@@ -138,6 +138,7 @@ class Nexpose:
                 return False
 
     def handleAccessReq(self, access_req, scanner_info):
+        user_add_status = False
         # print("TestMofule")
         if self.login_nexpose(scanner_info):
             addSiteStatus = self.addSite(access_req)
