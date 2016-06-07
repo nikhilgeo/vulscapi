@@ -27,8 +27,9 @@ class Utilities:
     def gen_code(size = 16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         return ''.join(random.SystemRandom().choice(chars) for _ in range(size))
     def write_to_file(msg):
-        print("Summary:\n")
+        print("Summary:")
         print("--------")
+        print(msg)
         print("Summary also written to file \'User_details_toMail.txt\'")
         f = open('User_details_toMail.txt', 'w')
         f.write(msg)
