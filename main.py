@@ -117,7 +117,7 @@ def access_request_handler():
 
 # runtime python version check
 if sys.version_info[0] < 3:
-    print("\033[96m Sorry, must be using Python 3 or greater\033[0m")  # The Class are bit different in py 2.X
+    print("\033[91mSorry, must be using Python 3 or greater\033[0m")  # The Class are bit different in py 2.X
     raise SystemExit
 
 
