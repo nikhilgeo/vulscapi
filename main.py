@@ -116,7 +116,10 @@ def access_request_handler():
 ''' Execution entry point: It all starts from here '''
 
 if sys.version_info[0] < 3:
-    raise "Must be using Python 3"
+    print("Must be using Python 3")
+    raise SystemExit
+
+
 
 # Command line parameter handling
 parser = argparse.ArgumentParser()
