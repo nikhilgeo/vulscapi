@@ -1,14 +1,14 @@
 # vulscapi
-Python scripts for Nessus, Nexpose &amp; Qualys API's. Below listed are the implements API calls.
+Python scripts for Nessus, Nexpose &amp; Qualys API's. Below listed are the implemented API calls.
 
-Nessus:
+**Nessus**
 * Add User
 
-Nexpose:
+**Nexpose**
 * Add Site
 * Add User
 
-Qualys:
+**Qualys**
 * Add asset
 * Add asset group
 * Add user
@@ -56,7 +56,49 @@ Scanner appliance information must be provided in **_scanner_details.xml_**
       </qualys>
 </scanner_details>
 ```
-Dependency
+**Dependency**
+* python 3 or above.
+* [Requests]  (http://docs.python-requests.org/en/master/)
+* [defusedxml] (https://pypi.python.org/pypi/defusedxml)
 ```
 pip install requests defusedxml
 ```
+**Project Structure**
+```
+Vulscapi
+|-vulscapi.py -- The wrapper that calls all other files. Run this to execute tasks
+|-nes.py -- Nessus tasks
+|-nex.py -- Nexpose tasks
+|-qua.py -- Qualys tasks
+|-util.py -- Miscellaneous utility
+|-access_request.xml -- Access request with user details and Asset details
+|-scanner_details.xml -- All the scanner URL and unames
+```
+
+**Run Vulscapi**
+
+Make user you have relevent xml flies(**_scanner_details.xml_**, **_access_request.xml_** ) in your current directory, these files are from which vulscapi get the scanner details and user access info(if required)
+```
+pyton vulscapi.py action {adduser}
+```
+Currently implemented action is adduser.
+
+**Adding a new scanner task**
+
+Add a new positional parameter like *adduser* in **_vulscapi.py**_ file, so that those function can be invoked when vulscapi is run along with new parameter. e.g python vul
+
+**Contributing to this repo**
+To fix a bug or enhance an existing module or add new feature, follow these steps:
+
+1. Fork the repo
+2. Create a new branch (`git checkout -b improve-feature`)
+3. Make the appropriate changes in the required file or add new file
+4. Commit your changes (`git commit -am 'Improve feature'`)
+5. Push to the branch (`git push origin improve-feature`)
+6. Create a Pull Request 
+
+**Bug / Feature Request**
+
+If you find a bug , kindly open an issue [here](https://github.com/nikhilgeo/vulscapi/issues/new) by including error/exception message, the expected result, steps to reproduce.
+
+If you'd like to request a new functionality, feel free to do so by opening an issue [here](https://github.com/nikhilgeo/vulscapi/issues/new) with description of the functinality.
