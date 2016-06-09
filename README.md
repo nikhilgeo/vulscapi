@@ -79,7 +79,7 @@ Vulscapi
 
 Make user you have relevent xml flies(**_scanner_details.xml_**, **_access_request.xml_** ) in your current directory, these files are from which vulscapi get the scanner details and user access info(if required)
 ```
-pyton vulscapi.py action {adduser}
+python vulscapi.py action {adduser}
 ```
 Currently implemented action is adduser.
 
