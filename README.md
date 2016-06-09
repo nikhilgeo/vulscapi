@@ -91,10 +91,10 @@ Add a new positional parameter like *adduser* in **_vulscapi.py**_ file, so that
 To fix a bug or enhance an existing module or add new feature, follow these steps:
 
 1. Fork the repo
-2. Create a new branch (`git checkout -b improve-feature`)
+2. Create a new branch (`git checkout -b new_task`)
 3. Make the appropriate changes in the required file or add new file
-4. Commit your changes (`git commit -am 'Improve feature'`)
-5. Push to the branch (`git push origin improve-feature`)
+4. Commit your changes (`git commit -am 'new_task details'`)
+5. Push to the branch (`git push origin new_task`)
 6. Create a Pull Request 
 
 **Bug / Feature Request**
