@@ -85,7 +85,7 @@ Currently implemented action is adduser.
 
 **Adding a new scanner task**
 
-Add a new positional parameter like *adduser* in **_vulscapi.py_** file, so that those function can be invoked when vulscapi is run along with new parameter. e.g python vul
+Add a new positional parameter like *adduser* in **_vulscapi.py_** file, so that those function can be invoked when vulscapi is run along with new parameter. e.g python vulscapi newpara
 
 **Contributing to this repo**
 To fix a bug or enhance an existing module or add new feature, follow these steps:
