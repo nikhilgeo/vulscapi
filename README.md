@@ -72,7 +72,7 @@ Vulscapi
 |-qua.py -- Qualys tasks
 |-util.py -- Miscellaneous utility
 |-access_request.xml -- Access request with user details and Asset details
-|-scanner_details.xml -- All the scanner URL and unames
+|_scanner_details.xml -- All the scanner URL and unames
 ```
 
 **Run Vulscapi**
