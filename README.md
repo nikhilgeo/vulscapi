@@ -101,4 +101,4 @@ To fix a bug or enhance an existing module or add new feature, follow these step
 
 If you find a bug , kindly open an issue [here](https://github.com/nikhilgeo/vulscapi/issues/new) by including error/exception message, the expected result, steps to reproduce.
 
-If you'd like to request a new functionality, feel free to do so by opening an issue [here](https://github.com/nikhilgeo/vulscapi/issues/new) with description of the functinality.
+If you'd like to request a new functionality, feel free to do so by opening an issue [here](https://github.com/nikhilgeo/vulscapi/issues/new) with description of the functionality.
