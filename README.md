@@ -81,9 +81,9 @@ Make user you have relevent xml flies(**_scanner_details.xml_**, **_access_reque
 ```
 python vulscapi.py action {adduser}
 ```
-Currently implemented action is adduser.
+Currently implemented action is adduser/scan.
 
-**Adding a new scanner task**
+**Adding a new task**
 
 Add a new positional parameter like *adduser* in **_vulscapi.py_** file and add appropriate implementations, so that those can be invoked when vulscapi is run along with new parameter. e.g python vulscapi newpara
 
