@@ -112,6 +112,11 @@ def access_request_handler():
                 Utilities.printException("In fun access_request_handler():"+ str(e))
 #---------------------Access Request Handler functions: End------------------------------------------------------------
 
+def scan_request_handler():
+    qualysObj = qua.Qualys()  # Create Qualys scanner class obj
+    qualysObj.scan()  # Scan
+
+#---------------------Scan Request Handler functions: End------------------------------------------------------------
 
 ''' Execution entry point: It all starts from here '''
 
@@ -121,7 +126,6 @@ if sys.version_info[0] < 3:
     raise SystemExit
 
 
-
 # Command line parameter handling
 parser = argparse.ArgumentParser()
 parser.add_argument("action", help="Scanner tasks", choices=['adduser', 'scan'])
@@ -129,5 +133,5 @@ args = parser.parse_args()
 if args.action == 'adduser':
     access_request_handler()
 if args.action == 'scan':
-        print("Scanner Functions: TBD")
+    scan_request_handler()
 
