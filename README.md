@@ -12,6 +12,7 @@ Python scripts for Nessus, Nexpose &amp; Qualys API's. Below listed are the impl
 * Add asset
 * Add asset group
 * Add user
+* Quick scan
 
 All the add user, add asset & add asset group functions(User access request functions) can be invoked by providing the user details and asset detail in **_access_request.xml_**
 
@@ -56,10 +57,41 @@ Scanner appliance information must be provided in **_scanner_details.xml_**
       </qualys>
 </scanner_details>
 ```
+
+For scanning a host, information must be provided in **_host_details.xml_**
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+   <scan_details>
+      <username>vmwar_hs</username>
+      <password>Test123#</password>
+      <email></email>
+   </scan_details>
+   <host_details>
+      <host>
+         <ip>10.112.89.82</ip>
+         <username>root</username>
+         <password>VMware123!</password>
+         <auth_record_title>nsx</auth_record_title>
+         <scan_template>797901</scan_template>
+         <report_template>991466</report_template>
+      </host>
+      <host>
+         <ip>10.112.89.83</ip>
+         <username>root</username>
+         <password>VMware123!</password>
+         <auth_record_title>nsx</auth_record_title>
+         <scan_template>797901</scan_template>
+         <report_template>991466</report_template>
+      </host>
+   </host_details>
+</data>
+```
 **Dependency**
 * python 3 or above.
 * [Requests]  (http://docs.python-requests.org/en/master/)
-* [defusedxml] (https://pypi.python.org/pypi/defusedxml)
+* [defusedxml]  (https://pypi.python.org/pypi/defusedxml)
 ```
 pip install requests defusedxml
 ```
@@ -72,16 +104,25 @@ Vulscapi
 |-qua.py -- Qualys tasks
 |-util.py -- Miscellaneous utility
 |-access_request.xml -- Access request with user details and Asset details
-|_scanner_details.xml -- All the scanner URL and unames
+|-scanner_details.xml -- All the scanner URL and unames
+|-host_details.xml -- Host details for a scan
 ```
+**About Qualys scan (Expected behaviour)**
+
+* Non admin account user will not be able to add IPs or Authentication record
+* Default template used for scans is **Authenticated Scan v.2 - (6)**. You can change this default template in host_details.xml file
+* Default template used for generating report is **Full Scan Technical Report**. You can change this default template in host_details.xml file
+* The code will check the status of the scan every five minutes. No activity will be seen on the screen during this time.
+* The report will be downloaded in the directory where the python script is placed.
+* Please note: Do not exit the python program before report gets downloaded.
 
 **Run Vulscapi**
 
-Make user you have relevent xml flies(**_scanner_details.xml_**, **_access_request.xml_** ) in your current directory, these files are from which vulscapi get the scanner details and user access info(if required)
+Make user you have relevent xml flies(**_scanner_details.xml_**, **_access_request.xml_**, **_host_details.xml_**) in your current directory, these files are from which vulscapi get the scanner details and user access info(if required)
 ```
-python vulscapi.py action {adduser}
+python vulscapi.py {action}
 ```
-Currently implemented action is adduser/scan.
+Where action is either **adduser** or **scan** as per current implementation
 
 **Adding a new task**
 
@@ -90,12 +131,12 @@ Add a new positional parameter like *adduser* in **_vulscapi.py_** file and add 
 **Contributing to this repo**
 To fix a bug or enhance an existing module or add new feature, follow these steps:
 
-1. Fork the repo
-2. Create a new branch (`git checkout -b new_task`)
-3. Make the appropriate changes in the required file or add new file
-4. Commit your changes (`git commit -am 'new_task details'`)
-5. Push to the branch (`git push origin new_task`)
-6. Create a Pull Request 
+* Fork the repo
+* Create a new branch (`git checkout -b new_task`)
+* Make the appropriate changes in the required file or add new file
+* Commit your changes (`git commit -am 'new_task details'`)
+* Push to the branch (`git push origin new_task`)
+* Create a Pull Request 
 
 **Bug / Feature Request**
 
