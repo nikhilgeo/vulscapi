@@ -70,17 +70,17 @@ For scanning a host, information must be provided in **_host_details.xml_**
    </scan_details>
    <host_details>
       <host>
-         <ip>10.112.89.82</ip>
+         <ip>X.X.X.X</ip>
          <username>root</username>
-         <password>VMware123!</password>
+         <password>xxxx</password>
          <auth_record_title>nsx</auth_record_title>
          <scan_template>797901</scan_template>
          <report_template>991466</report_template>
       </host>
       <host>
-         <ip>10.112.89.83</ip>
+         <ip>X.X.X.X</ip>
          <username>root</username>
-         <password>VMware123!</password>
+         <password>xxxx</password>
          <auth_record_title>nsx</auth_record_title>
          <scan_template>797901</scan_template>
          <report_template>991466</report_template>
