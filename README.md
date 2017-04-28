@@ -34,7 +34,7 @@ All the add user, add asset & add asset group functions(User access request func
       <ip>X2.X2.X2.X2</ip>
       <ip>X3.X3.X3.X3</ip>
    </asset_details>
-   <site name='site name' desc='site description'>
+   <site name='site name' desc='site description'></site>
 </new_accessInfo>
 ```
 
@@ -43,15 +43,15 @@ Scanner appliance information must be provided in **_scanner_details.xml_**
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <scanner_details>
-      <nessus enabled=(1,0)>
+      <nessus enabled='(1,0)'>
          <host>nessus_host</host>
          <username>nessus_uname</username>
       </nessus>
-      <nexpose enabled=(1,0)>
+      <nexpose enabled='(1,0)'>
          <host>nexpose_host</host>
          <username>nexpose_uname</username>
       </nexpose>
-      <qualys enabled=(1,0)>
+      <qualys enabled='(1,0)'>
          <host>qualys_host</host>
          <username>qualys_uname</username>
       </qualys>
